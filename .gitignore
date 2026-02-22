@@ -1,0 +1,55 @@
+# ---- Python bytecode ----
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+
+# ---- Virtual environment (uv) ----
+.venv/
+venv/
+env/
+
+# ---- Environment variables ----
+.env
+.env.*
+
+# ---- Packaging ----
+build/
+dist/
+*.egg-info/
+
+# ---- Jupyter ----
+.ipynb_checkpoints/
+
+# ---- Logs & runtime files ----
+*.log
+*.out
+
+# ---- OS files ----
+.DS_Store
+Thumbs.db
+
+# ---- IDEs & editors ----
+.vscode/
+.idea/
+
+# ---- Testing & coverage ----
+.pytest_cache/
+.coverage
+htmlcov/
+
+# ---- Type checkers / linters ----
+.mypy_cache/
+.ruff_cache/
+.pyre/
+
+# ---- uv specific (lock + cache) ----
+# Keep the lock file if you want reproducibility
+# uv.lock
+
+# ---- Data / artifacts (common in ML projects) ----
+data/
+artifacts/
+checkpoints/
+models/
+outputs/
