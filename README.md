@@ -1,2 +1,37 @@
-# Scalable-ML
-Production-minded ML engineering repo focused on scalable training, data/feature pipelines, experiment tracking, model serving, and MLOps patterns. Emphasizes modular design, reproducibility, benchmarking, and efficient use of compute while translating ML theory into reliable, high-performance systems.
+# Scalable ML
+
+A growing, hands-on repository focused on building and understanding **machine learning systems that scale from experimentation to production**.
+
+This repo serves as a practical workspace where I implement concepts while studying ML/DS and ML infrastructure—turning theory into modular, reproducible, and performance-aware code.
+Instead of isolated notebooks, the goal is to incrementally develop components that reflect real-world ML workflows: data processing, training, evaluation, and serving.
+
+## Current Status
+
+🚧 Early stage — actively being built and refined.
+
+## Focus Areas (will expand over time)
+
+* Reproducible experimentation
+* Efficient training workflows
+* System-oriented ML development
+* Performance and scalability considerations
+* Deployment and MLOps fundamentals
+
+## Approach
+
+* Learn → implement → refactor → scale
+* Keep code modular and production-minded
+* Track measurable improvements over time
+
+## Roadmap
+
+This repository will continuously evolve with:
+
+* New implementations
+* Benchmarks and comparisons
+* Better abstractions and pipelines
+* End-to-end ML workflows
+
+---
+
+This is a long-term, iterative project documenting my progression toward **production-grade ML engineering and scalable AI systems**.
