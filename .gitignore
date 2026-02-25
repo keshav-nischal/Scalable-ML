@@ -56,4 +56,4 @@ outputs/
 
 # local data
 temp/
-*.local
+*.local.*
