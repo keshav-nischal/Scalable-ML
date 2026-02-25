@@ -53,3 +53,7 @@ artifacts/
 checkpoints/
 models/
 outputs/
+
+# local data
+temp/
+*.local
