@@ -11,9 +11,8 @@ Instead of isolated notebooks, the goal is to incrementally develop components t
 
 ## Focus Areas (will expand over time)
 
-* Reproducible experimentation
 * Efficient training workflows
-* System-oriented ML development
+* ML/DL fundamentals development
 * Performance and scalability considerations
 * Deployment and MLOps fundamentals
 
@@ -27,9 +26,9 @@ Instead of isolated notebooks, the goal is to incrementally develop components t
 
 This repository will continuously evolve with:
 
-* New implementations
+* New implementations & Research work
 * Benchmarks and comparisons
-* Better abstractions and pipelines
+* Better abstractions
 * End-to-end ML workflows
 
 ---
