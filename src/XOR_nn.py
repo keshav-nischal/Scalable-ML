@@ -69,53 +69,64 @@ nn = NeuralNetwork([hidden, output])
 
 learning_rate = 0.5  # typical small value
 
-# single-epoch pass that computes gradients and updates weights (SGD, sample-wise)
-for xi, yi in zip(x, y):
-    # forward (store temps)
-    out = nn.predict(xi, is_learning=True)  # out is array with single element
-    # output layer values
-    a_out = nn.layers[-1].get_temp("activation")[0]   # scalar
-    a_hidden = nn.layers[-2].get_temp("activation")   # vector of hidden activations
-    a_input = np.array(xi, dtype=float)               # input activations
+target_epoch = 20000
+batch_size = 100
+curr_epoch = 0
 
-    # dC/da (MSE)
-    dc_da = 2.0 * (a_out - yi[0])   # scalar
+while(curr_epoch<target_epoch):
+    for i in range(batch_size):
+        curr_epoch += 1
+        for xi, yi in zip(x, y):
+            # forward (store temps)
+            out = nn.predict(xi, is_learning=True)  # out is array with single element
+            # output layer values
+            a_out = nn.layers[-1].get_temp("activation")[0]   # scalar
+            a_hidden = nn.layers[-2].get_temp("activation")   # vector of hidden activations
+            a_input = np.array(xi, dtype=float)               # input activations
 
-    # da/dz for output (sigmoid derivative)
-    da_dz_out = a_out * (1.0 - a_out)
+            # dC/da (MSE)
+            dc_da = 2.0 * (a_out - yi[0])   # scalar
 
-    # dC/dz for output
-    dC_dz_out = dc_da * da_dz_out  # scalar
+            # da/dz for output (sigmoid derivative)
+            da_dz_out = a_out * (1.0 - a_out)
 
-    # gradients for output neuron's weights and bias
-    grad_w_output = dC_dz_out * a_hidden     # vector (shape matches output weights)
-    grad_b_output = dC_dz_out                # scalar
+            # dC/dz for output
+            dC_dz_out = dc_da * da_dz_out  # scalar
 
-    # update output weights and bias (in-place)
-    out_neuron = nn.layers[-1].neurons[0]
-    out_neuron.weights -= learning_rate * grad_w_output
-    out_neuron.bias    -= learning_rate * grad_b_output
+            # gradients for output neuron's weights and bias
+            grad_w_output = dC_dz_out * a_hidden     # vector (shape matches output weights)
+            grad_b_output = dC_dz_out                # scalar
 
-    # ===== backprop into hidden layer =====
-    # For each hidden neuron j:
-    # dC/dz_j = w_output_j * dC/dz_out * a_j * (1 - a_j)
-    w_out = out_neuron.weights  # vector of weights from hidden -> output
-    dC_dz_hidden = (w_out * dC_dz_out) * (a_hidden * (1.0 - a_hidden))  # vector
+            # update output weights and bias (in-place)
+            out_neuron = nn.layers[-1].neurons[0]
+            out_neuron.weights -= learning_rate * grad_w_output
+            out_neuron.bias    -= learning_rate * grad_b_output
 
-    # gradients for hidden weights and biases
-    # dC/dw_hidden_j = dC/dz_j * a_input  (a_input is vector)
-    for j, hidden_neuron in enumerate(nn.layers[-2].neurons):
-        grad_w_hj = dC_dz_hidden[j] * a_input
-        grad_b_hj = dC_dz_hidden[j]
-        hidden_neuron.weights -= learning_rate * grad_w_hj
-        hidden_neuron.bias    -= learning_rate * grad_b_hj
+            # ===== backprop into hidden layer =====
+            # For each hidden neuron j:
+            # dC/dz_j = w_output_j * dC/dz_out * a_j * (1 - a_j)
+            w_out = out_neuron.weights  # vector of weights from hidden -> output
+            dC_dz_hidden = (w_out * dC_dz_out) * (a_hidden * (1.0 - a_hidden))  # vector
 
-    # clear temps for next sample
-    nn.clear_temp()
+            # gradients for hidden weights and biases
+            # dC/dw_hidden_j = dC/dz_j * a_input  (a_input is vector)
+            for j, hidden_neuron in enumerate(nn.layers[-2].neurons):
+                grad_w_hj = dC_dz_hidden[j] * a_input
+                grad_b_hj = dC_dz_hidden[j]
+                hidden_neuron.weights -= learning_rate * grad_w_hj
+                hidden_neuron.bias    -= learning_rate * grad_b_hj
 
+            # clear temps for next sample
+            nn.clear_temp()
+
+nn.clear_temp()
 # Print updated params (optional)
-print("Hidden neurons after one pass:")
+print("trained neurons:")
+print("hidden layer")
 for n in nn.layers[0].neurons:
     print(n)
-print("Output neuron:")
+print("output layer")
 print(nn.layers[1].neurons[0])
+
+for xi in x:
+    print(nn.predict(xi))
