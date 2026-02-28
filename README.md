@@ -16,21 +16,7 @@ The goal is to incrementally develop components that reflect real-world ML workf
 * Performance and scalability considerations
 * ML Workflows
 
-## Approach
-
-* Learn → implement → refactor → scale
-* Keep code modular and production-minded
-* Track measurable improvements over time
-
-## Roadmap
-
-This repository will continuously evolve with:
-
-* New implementations & Research work
-* Benchmarks and comparisons
-* Better abstractions
-* End-to-end ML workflows
-
+... other sections coming soon!
 ---
 
 This is a long-term, iterative project documenting my progression toward **production-grade ML engineering and scalable AI systems**.
