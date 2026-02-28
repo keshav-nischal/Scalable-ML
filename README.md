@@ -11,10 +11,10 @@ Instead of isolated notebooks, the goal is to incrementally develop components t
 
 ## Focus Areas (will expand over time)
 
-* Efficient training workflows
 * ML/DL fundamentals development
-* Performance and scalability considerations
 * Deployment and MLOps fundamentals
+* Performance and scalability considerations
+* ML Workflows
 
 ## Approach
 
