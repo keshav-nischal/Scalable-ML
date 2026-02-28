@@ -1,6 +1,6 @@
 # Scalable ML
 
-A growing, hands-on repository focused on building and understanding **machine learning systems that scale from experimentation to production**.
+A growing, hands-on repository focused on learning, building and understanding **machine learning systems that scale from experimentation to production**.
 
 This repo serves as a practical workspace where I implement concepts while studying ML/DS and ML infrastructure—turning theory into modular, reproducible, and performance-aware code.
 Instead of isolated notebooks, the goal is to incrementally develop components that reflect real-world ML workflows: data processing, training, evaluation, and serving.
