@@ -57,3 +57,7 @@ outputs/
 # local data
 temp/
 *.local.*
+
+# ---- Claude Code ----
+.claude/
+CLAUDE.md
