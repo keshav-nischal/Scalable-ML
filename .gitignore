@@ -61,4 +61,4 @@ temp/
 # ---- Claude Code ----
 .claude/*
 !.claude/2026-study-plan/
-CLAUDE.md
+# CLAUDE.md is intentionally tracked (repo guide + AI-usage disclosure)
