@@ -1,27 +1,15 @@
-# Repository Guide & AI-Usage Disclosure
+# CLAUDE.md
 
-## Git authorship
+Instructions for Claude Code when working in this repository.
 
-Commits in this repository are authored by the repository owner:
+## Git
 
-- **Name:** keshav-nischal
-- **Email:** keshavnischal@gmail.com
+- Author all commits as **keshav-nischal &lt;keshavnischal@gmail.com&gt;**. The local
+  git config is already set to this — keep it; never commit under another identity.
 
-The repository's local git config is set to these values. Do not create commits
-under any other identity (e.g. a work email).
+## Scope
 
-## AI usage in this repository (for anyone reviewing this work)
-
-This is my personal machine-learning study repository. In the interest of full
-transparency:
-
-- The **machine-learning solutions, notebooks, and code** in this repo are **my
-  own work** — I reason through and implement the exercises myself. That is the
-  entire point of the repository.
-- **Claude Code (Anthropic's AI assistant) is used here only for:**
-  1. **Git operations** — creating commits and pushing to GitHub; and
-  2. Generating my **personal study-plan / roadmap documents** in
-     `.claude/2026-study-plan/` (planning notes and strategy — not portfolio code).
-
-Claude is **not** used to solve the learning exercises or write the ML code
-under `src/`.
+- In this repo, help only with **committing and pushing changes** and with
+  maintaining my planning notes under `.claude/2026-study-plan/`.
+- The exercises, notebooks, and code under `src/` are **my own work** — I solve
+  them by hand as part of studying. Don't write, complete, or modify them.
