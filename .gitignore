@@ -59,5 +59,6 @@ temp/
 *.local.*
 
 # ---- Claude Code ----
-.claude/
+.claude/*
+!.claude/2026-study-plan/
 CLAUDE.md
