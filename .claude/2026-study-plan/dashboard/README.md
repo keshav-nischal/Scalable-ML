@@ -3,6 +3,23 @@
 An interactive control panel for the study plan — generated from the markdown in
 `../` (the plan is the source of truth; this is the operable view on top).
 
+## File layout
+
+The dashboard is split into four files so each part stays small and editable
+(open only the one you need instead of one ~1200-line file):
+
+| File             | What's in it                                                   |
+| ---------------- | -------------------------------------------------------------- |
+| `dashboard.html` | Thin shell — page markup, loads the CSS + JS below             |
+| `data.js`        | **The plan data** (weeks, blocks, projects, posts, checkpoints) — edit this when the plan changes |
+| `app.js`         | Rendering + progress engine + file sync (machinery; rarely changes) |
+| `styles.css`     | All styling / theme tokens                                     |
+
+`data.js` defines the globals `WEEKS`, `BLOCKS`, `PROJECTS`, `REPROS`, `POSTS`,
+`CPS` (plus the `TYPE`/`it()` helpers) and loads **before** `app.js`, which reads
+them. Loaded as classic scripts + a stylesheet `<link>`, so it works opened
+directly (`file://`) or served. **To change plan content, edit `data.js` only.**
+
 ## Use it
 
 Open **`dashboard.html`** in a browser (double-click, or serve the folder — see below).
@@ -36,5 +53,6 @@ and shows timeline / block / project / post completion.
 
 ## Regenerating
 
-Ask Claude Code to regenerate `dashboard.html` whenever the plan changes — it rebuilds
-from the markdown files in `../`. `progress.json` is independent and is not overwritten.
+Ask Claude Code to update the dashboard whenever the plan changes — in practice that
+means editing `data.js` (and `../*.md`) to match. `app.js`/`styles.css` only change
+when the layout or styling changes. `progress.json` is independent and is not overwritten.
