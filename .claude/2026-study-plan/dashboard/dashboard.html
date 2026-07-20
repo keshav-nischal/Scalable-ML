@@ -400,7 +400,7 @@
           <span class="p-id mono" style="font:700 12px/1 'Cascadia Code',monospace; color:var(--accent-2); background:var(--accent-wash); border:1px solid var(--accent-line); padding:5px 8px; border-radius:7px">SAA-C03</span>
           <b style="font-size:15px">Solutions Architect – Associate</b>
         </div>
-        <p class="prose" style="font-size:13px; margin:.4rem 0">August (W2–W6), as <b>revision</b>. No SAA-C04 exists. Drive it with Tutorials Dojo practice exams; TD runs ~8–13 pts harder than the real thing.</p>
+        <p class="prose" style="font-size:13px; margin:.4rem 0">August (W1–W5), as <b>revision</b>. No SAA-C04 exists. Drive it with Tutorials Dojo practice exams; TD runs ~8–13 pts harder than the real thing.</p>
         <table class="facts">
           <tr><td>Format</td><td><span class="mono">65 Q · 130 min · $150</span></td></tr>
           <tr><td>Pass</td><td><span class="mono">720 / 1000</span> · compensatory → answer everything</td></tr>
@@ -415,13 +415,13 @@
       </div>
       <div class="card pad">
         <div style="display:flex; align-items:center; gap:10px; margin-bottom:6px">
-          <span class="pill y">DECIDE IN SEPTEMBER · W9</span>
+          <span class="pill y">DECIDE IN SEPTEMBER · W8</span>
         </div>
         <b style="font-size:15px">AWS ML Engineer – Associate</b>
         <div class="alert warn" style="margin:12px 0">
           <span class="mono">⚠ HARD DEADLINE</span> — last day to sit <b>MLA-C01 (English) is Sept 28, 2026</b>. Its successor <b>MLA-C02</b> adds GenAI / agentic / Bedrock topics and lands standard in early 2027.
         </div>
-        <p class="prose" style="font-size:13px; margin:.4rem 0"><b>The fork (run the framework in W9):</b></p>
+        <p class="prose" style="font-size:13px; margin:.4rem 0"><b>The fork (run the framework in W8):</b></p>
         <p class="prose" style="font-size:12.5px; margin:.3rem 0"><span class="pill g">DEFAULT</span> Target <b>MLA-C02 in Jan–Feb 2027</b> — GenAI-aligned, and it doesn't cannibalise the RAG project + Ch 15 that actually drive income.</p>
         <p class="prose" style="font-size:12.5px; margin:.3rem 0"><span class="pill y">ONLY IF</span> SAA finished with time + appetite to spare: <b>race MLA-C01, sit by Sep 26</b> (48-hr buffer). Accept P3 slides to October.</p>
       </div>
@@ -710,55 +710,55 @@
     del:"Freelance profiles live · retrospective posted · 2027 runway set"}
   ];
   var BLOCKS=[
-   {id:"A",title:"Setup + SAA cert + Part I finish",meta:"W1–6 · Jul 18 – Aug 28"},
-   {id:"B",title:"Core DL + first projects + cert decision",meta:"W7–12 · Aug 29 – Oct 9"},
-   {id:"C",title:"Transformers / LLMs + anchor projects",meta:"W13–19 · Oct 10 – Nov 27"},
-   {id:"D",title:"Agentic / MLOps + consolidate + position",meta:"W20–24 · Nov 28 – Dec 30"}
+   {id:"A",title:"Setup + SAA cert + Part I finish",meta:"W0–5 · Jul 18 – Aug 28"},
+   {id:"B",title:"Core DL + first projects + cert decision",meta:"W6–11 · Aug 29 – Oct 9"},
+   {id:"C",title:"Transformers / LLMs + anchor projects",meta:"W12–18 · Oct 10 – Nov 27"},
+   {id:"D",title:"Agentic / MLOps + consolidate + position",meta:"W19–23 · Nov 28 – Dec 30"}
   ];
   var PROJECTS=[
-   {id:"P0",name:"Anomaly / clustering demo",tag:"classic-ML · easy win",feeds:"Ch 7,8 · W4–6",
+   {id:"P0",name:"Anomaly / clustering demo",tag:"classic-ML · easy win",feeds:"Ch 7,8 · W3–5",
     body:"Find natural segments + flag anomalies on an unlabeled real-ish dataset. PCA/UMAP → k-means/DBSCAN → GMM/IsolationForest → Streamlit upload app.",
     metrics:"silhouette · precision/recall of flags on a labeled subset"},
-   {id:"P1",name:"Transfer-learning image classifier",tag:"CV · deployed",feeds:"Ch 12 · W9–10",
+   {id:"P1",name:"Transfer-learning image classifier",tag:"CV · deployed",feeds:"Ch 12 · W8–9",
     body:"Fine-grained task, few images/class. Pretrained backbone → freeze → head → differential-LR fine-tune. Gradio: image → top-3.",
     metrics:"acc vs from-scratch · per-class · confusion matrix · 3–5 honest failures"},
-   {id:"P2",name:"Forecasting / predictive maintenance",tag:"the classic-ML hedge",feeds:"Ch 13 · W11–12",
+   {id:"P2",name:"Forecasting / predictive maintenance",tag:"the classic-ML hedge",feeds:"Ch 13 · W10–11",
     body:"Predict something a manager would pay to know. Windowed features → XGBoost baseline → LSTM → honest backtest → FastAPI /predict.",
     metrics:"MAE/RMSE vs naive baseline · a cost/impact framing"},
-   {id:"P3",name:"Domain-specific RAG API",tag:"the 2026 golden project",feeds:"Ch 14,15 · W15–17",anchor:true,
+   {id:"P3",name:"Domain-specific RAG API",tag:"the 2026 golden project",feeds:"Ch 14,15 · W14–16",anchor:true,
     body:"Accurate, cited Q&A over a niche corpus. Smart chunking → vector DB → hybrid dense+BM25 → cross-encoder rerank → grounded generation → FastAPI + Docker.",
     metrics:"RAGAS faithfulness/relevancy · hit-rate@k · p50/p95 latency · cost/query · before/after reranking"},
-   {id:"P4",name:"LLM eval & observability pipeline",tag:"your signature",feeds:"Ch 15 · App B · W18–20",anchor:true,
+   {id:"P4",name:"LLM eval & observability pipeline",tag:"your signature",feeds:"Ch 15 · App B · W17–19",anchor:true,
     body:"The layer that catches quality drops before users do. Golden dataset → RAGAS+DeepEval + LLM-judge → tracing → an “LLM CI” Action that fails the build below thresholds.",
     metrics:"catches an injected regression · % hallucinations caught · eval-run latency"},
-   {id:"P5",name:"Agentic workflow OR MLOps service",tag:"rounds out the story",feeds:"Ch 17 · App B · W21",
+   {id:"P5",name:"Agentic workflow OR MLOps service",tag:"rounds out the story",feeds:"Ch 17 · App B · W20",
     body:"(a) LangGraph tool-using agent with self-correction + guardrails, or (b) a model behind Docker+CI+drift monitoring+alerting. Recommendation: (a) for the wow.",
     metrics:"task success · tool-call accuracy · cost/task · guardrail catches"}
   ];
   var REPROS=[
-   {id:"makemore",name:"makemore",tag:"~8–15 h · W7–8",body:"Char-level LM from scratch. On-ramp to autograd/backprop/embeddings. Optional if time-pressed — nanoGPT subsumes it."},
-   {id:"nanogpt",name:"nanoGPT / build-nanogpt",tag:"⭐ ~15–30 h · W13–15",body:"Reproduce a GPT-2-class model in a few hundred lines. Highest-signal reproduction."},
-   {id:"lora",name:"LoRA / QLoRA fine-tune",tag:"⭐ ~10–20 h · W18",body:"From-scratch adapter → the PEFT production path; QLoRA runs on a free Colab T4. Most directly hireable."}
+   {id:"makemore",name:"makemore",tag:"~8–15 h · W6–7",body:"Char-level LM from scratch. On-ramp to autograd/backprop/embeddings. Optional if time-pressed — nanoGPT subsumes it."},
+   {id:"nanogpt",name:"nanoGPT / build-nanogpt",tag:"⭐ ~15–30 h · W12–14",body:"Reproduce a GPT-2-class model in a few hundred lines. Highest-signal reproduction."},
+   {id:"lora",name:"LoRA / QLoRA fine-tune",tag:"⭐ ~10–20 h · W17",body:"From-scratch adapter → the PEFT production path; QLoRA runs on a free Colab T4. Most directly hireable."}
   ];
   var POSTS=[
-   {n:1,w:"W1",t:"6 months to become a production LLM engineer — my plan, in public"},
-   {n:2,w:"W3",t:"PCA explained by actually compressing an image"},
-   {n:3,w:"W6",t:"Passed AWS SAA-C03 — my 4-week revision loop"},
-   {n:4,w:"W8",t:"I built a neural language model from scratch (makemore)"},
-   {n:5,w:"W10",t:"P1 case study — transfer learning + where it breaks"},
-   {n:6,w:"W12",t:"Classic ML still pays: forecasting — XGBoost vs LSTM"},
-   {n:7,w:"W15",t:"I reproduced GPT-2 from scratch — the 4 ideas behind a Transformer"},
-   {n:8,w:"W17",t:"P3 RAG API — with the eval numbers most demos hide"},
-   {n:9,w:"W19",t:"⭐ The part of LLM apps everyone skips: how I test & evaluate them"},
-   {n:10,w:"W21",t:"P5 — agent guardrails / model-decay monitoring"},
-   {n:11,w:"W22",t:"(stretch) diffusion samples"},
-   {n:12,w:"W24",t:"6 months building in public — and I'm open for freelance"}
+   {n:1,w:"W0",t:"6 months to become a production LLM engineer — my plan, in public"},
+   {n:2,w:"W2",t:"PCA explained by actually compressing an image"},
+   {n:3,w:"W5",t:"Passed AWS SAA-C03 — my 4-week revision loop"},
+   {n:4,w:"W7",t:"I built a neural language model from scratch (makemore)"},
+   {n:5,w:"W9",t:"P1 case study — transfer learning + where it breaks"},
+   {n:6,w:"W11",t:"Classic ML still pays: forecasting — XGBoost vs LSTM"},
+   {n:7,w:"W14",t:"I reproduced GPT-2 from scratch — the 4 ideas behind a Transformer"},
+   {n:8,w:"W16",t:"P3 RAG API — with the eval numbers most demos hide"},
+   {n:9,w:"W18",t:"⭐ The part of LLM apps everyone skips: how I test & evaluate them"},
+   {n:10,w:"W20",t:"P5 — agent guardrails / model-decay monitoring"},
+   {n:11,w:"W21",t:"(stretch) diffusion samples"},
+   {n:12,w:"W23",t:"6 months building in public — and I'm open for freelance"}
   ];
   var CPS=[
-   {n:1,when:"End of Block A · ~W6",title:"Does the machine run?",q:"Pure execution test — no market signal expected yet.",big:false},
-   {n:2,when:"End of Block B · ~W12",title:"Can I ship, and is anyone noticing?",q:"Execution proven + first weak pulse. Cert decision must be locked.",big:false},
-   {n:3,when:"End of Block C · ~W19",title:"Do the anchors exist? — THE BIG ONE",q:"P3 + P4 are the proof you can build & prove production LLM systems.",big:true},
-   {n:4,when:"End of Block D · ~W24",title:"Am I positioned to sell?",q:"Positioning + first real read. Paid work by Dec 30 is a bonus, not the bar.",big:false},
+   {n:1,when:"End of Block A · ~W5",title:"Does the machine run?",q:"Pure execution test — no market signal expected yet.",big:false},
+   {n:2,when:"End of Block B · ~W11",title:"Can I ship, and is anyone noticing?",q:"Execution proven + first weak pulse. Cert decision must be locked.",big:false},
+   {n:3,when:"End of Block C · ~W18",title:"Do the anchors exist? — THE BIG ONE",q:"P3 + P4 are the proof you can build & prove production LLM systems.",big:true},
+   {n:4,when:"End of Block D · ~W23",title:"Am I positioned to sell?",q:"Positioning + first real read. Paid work by Dec 30 is a bonus, not the bar.",big:false},
    {n:5,when:"~Q2 2027",title:"Does the market pay? — the real thesis test",q:"Only here do you judge the strategy — after a genuine 8–12 wk outreach push.",big:false}
   ];
 
@@ -766,6 +766,9 @@
   function el(tag,cls,html){var e=document.createElement(tag); if(cls)e.className=cls; if(html!=null)e.innerHTML=html; return e;}
   function reqKeys(w){var ks=[]; w.core.forEach(function(_,i){ks.push("wk."+w.id+".c."+i);}); ks.push("wk."+w.id+".d"); return ks;}
   function weekDone(w){var ks=reqKeys(w),d=0; ks.forEach(function(k){if(getB(k))d++;}); return {done:d,total:ks.length};}
+  // Weeks are stored 1..24 internally (stable progress keys) but DISPLAYED 0-indexed: W0..W23.
+  function wnum(id){ return id-1; }
+  function wlab(id){ var n=id-1; return "W"+(n<10?"0":"")+n; }
 
   // current week from today
   function currentIndex(){
@@ -784,7 +787,7 @@
     WEEKS.filter(function(w){return w.blk===b;}).forEach(function(w){
       var c=el("button","cell"); c.type="button";
       c.setAttribute("data-week",w.id);
-      c.title="W"+(w.id<10?"0":"")+w.id+" — "+w.title;
+      c.title=wlab(w.id)+" — "+w.title;
       c.setAttribute("aria-label",c.title);
       wrap.appendChild(c);
     });
@@ -847,7 +850,7 @@
   (function(){
     var card=el("div","card now-card");
     var top=el("div","nc-top");
-    top.appendChild(el("span","nc-code","W"+(tw.id<10?"0":"")+tw.id));
+    top.appendChild(el("span","nc-code",wlab(tw.id)));
     top.appendChild(el("span","nc-title",tw.title));
     top.appendChild(el("span","nc-dates mono",tw.dates));
     top.appendChild(el("span","nc-badge", CUR===0?"STARTS SOON":"BLOCK "+tw.blk));
@@ -883,7 +886,7 @@
       var wk=el("div","week"); wk.id="week-"+w.id;
       if(w.id===CURW) wk.classList.add("is-now");
       var hb=el("button","wk-head"); hb.type="button"; hb.setAttribute("aria-expanded","false");
-      hb.appendChild(el("span","wk-code","W"+(w.id<10?"0":"")+w.id));
+      hb.appendChild(el("span","wk-code",wlab(w.id)));
       hb.appendChild(el("span","wk-title",w.title));
       if(w.id===CURW) hb.appendChild(el("span","nowpill","NOW"));
       hb.appendChild(el("span","wk-dates mono",w.dates));
@@ -995,8 +998,8 @@
     document.getElementById("kpi-posts").innerHTML=pp+"<small> / 12</small>";
     // now
     var w=WEEKS[CURW-1];
-    document.getElementById("run-now").innerHTML=(CUR===0?"Starts "+w.dates:"<b>Week "+w.id+"</b> / 24 · Block "+w.blk);
-    document.getElementById("kpi-now").textContent="W"+w.id+" / 24";
+    document.getElementById("run-now").innerHTML=(CUR===0?"Starts "+w.dates:"<b>Week "+wnum(w.id)+"</b> / 24 · Block "+w.blk);
+    document.getElementById("kpi-now").textContent=wlab(w.id)+" / 24";
     document.getElementById("kpi-now-sub").textContent="Block "+w.blk+" · "+w.dates;
   }
 
