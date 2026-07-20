@@ -1,0 +1,1115 @@
+<title>ML Plan 2026 · Run Control</title>
+<style>
+  /* ---------- tokens (light = :root) ---------- */
+  :root{
+    --bg:#ECEFF0; --surface:#ffffff; --surface-2:#F4F7F7; --surface-3:#E9EEEE;
+    --ink:#181E24; --ink-2:#586570; --ink-3:#8B959D;
+    --line:#DBE1E3; --line-2:#C7D0D2;
+    --accent:#0C7C72; --accent-2:#0A6157; --accent-wash:#E0EFEC; --accent-line:#98CBC5;
+    --warn:#93600C; --warn-wash:#F5ECD8; --warn-line:#E0C489;
+    --crit:#A63A2E; --crit-wash:#F5E1DD; --crit-line:#E2B0A8;
+    --radius:10px; --radius-sm:6px; --maxw:1120px;
+    --shadow:0 1px 2px rgba(20,30,40,.045), 0 10px 28px -18px rgba(20,30,40,.22);
+    color-scheme:light;
+  }
+  @media (prefers-color-scheme:dark){
+    :root{
+      --bg:#0D1116; --surface:#141A21; --surface-2:#1A212A; --surface-3:#212A34;
+      --ink:#E7ECEF; --ink-2:#9AA5AF; --ink-3:#6B7681;
+      --line:#252E38; --line-2:#323C48;
+      --accent:#33C6B6; --accent-2:#5AD8C9; --accent-wash:#0F312D; --accent-line:#1E5A53;
+      --warn:#E2A94A; --warn-wash:#2C2413; --warn-line:#5A4A22;
+      --crit:#E0685C; --crit-wash:#2E1A17; --crit-line:#5B322C;
+      --shadow:0 1px 2px rgba(0,0,0,.3), 0 12px 30px -18px rgba(0,0,0,.6);
+      color-scheme:dark;
+    }
+  }
+  /* explicit viewer toggle overrides (must win both directions) */
+  :root[data-theme="light"]{
+    --bg:#ECEFF0; --surface:#ffffff; --surface-2:#F4F7F7; --surface-3:#E9EEEE;
+    --ink:#181E24; --ink-2:#586570; --ink-3:#8B959D;
+    --line:#DBE1E3; --line-2:#C7D0D2;
+    --accent:#0C7C72; --accent-2:#0A6157; --accent-wash:#E0EFEC; --accent-line:#98CBC5;
+    --warn:#93600C; --warn-wash:#F5ECD8; --warn-line:#E0C489;
+    --crit:#A63A2E; --crit-wash:#F5E1DD; --crit-line:#E2B0A8;
+    color-scheme:light;
+  }
+  :root[data-theme="dark"]{
+    --bg:#0D1116; --surface:#141A21; --surface-2:#1A212A; --surface-3:#212A34;
+    --ink:#E7ECEF; --ink-2:#9AA5AF; --ink-3:#6B7681;
+    --line:#252E38; --line-2:#323C48;
+    --accent:#33C6B6; --accent-2:#5AD8C9; --accent-wash:#0F312D; --accent-line:#1E5A53;
+    --warn:#E2A94A; --warn-wash:#2C2413; --warn-line:#5A4A22;
+    --crit:#E0685C; --crit-wash:#2E1A17; --crit-line:#5B322C;
+    color-scheme:dark;
+  }
+
+  *{box-sizing:border-box}
+  html{-webkit-text-size-adjust:100%}
+  body{
+    margin:0; background:var(--bg); color:var(--ink);
+    font-family:"Segoe UI Variable Display","Segoe UI",system-ui,-apple-system,"Helvetica Neue",Arial,sans-serif;
+    font-size:16px; line-height:1.55; letter-spacing:-.005em;
+    -webkit-font-smoothing:antialiased; text-rendering:optimizeLegibility;
+  }
+  .mono{font-family:"Cascadia Code","Cascadia Mono",ui-monospace,"SF Mono","JetBrains Mono","Roboto Mono",Consolas,monospace;
+    font-variant-numeric:tabular-nums;}
+  a{color:var(--accent-2); text-underline-offset:2px; text-decoration-thickness:1px;}
+  @media (prefers-color-scheme:dark){a{color:var(--accent)}}
+  :root[data-theme="dark"] a{color:var(--accent)}
+  :root[data-theme="light"] a{color:var(--accent-2)}
+  a:hover{color:var(--accent)}
+  h1,h2,h3{text-wrap:balance; line-height:1.15; margin:0; letter-spacing:-.02em;}
+  :focus-visible{outline:2px solid var(--accent); outline-offset:2px; border-radius:4px;}
+
+  .wrap{max-width:var(--maxw); margin:0 auto; padding:0 clamp(14px,3vw,28px);}
+  .eyebrow{font-size:11px; letter-spacing:.16em; text-transform:uppercase; color:var(--ink-3); font-weight:600;}
+
+  /* ---------- topbar / instrument ---------- */
+  .topbar{
+    position:sticky; top:0; z-index:40;
+    background:color-mix(in srgb, var(--surface) 88%, transparent);
+    backdrop-filter:saturate(1.4) blur(10px);
+    border-bottom:1px solid var(--line);
+  }
+  .topgrid{display:grid; grid-template-columns:1fr; gap:16px; padding:16px 0 14px;}
+  @media(min-width:860px){ .topgrid{grid-template-columns:minmax(260px,1fr) minmax(360px,1.25fr); align-items:end; gap:28px;} }
+  .brandline h1{font-size:clamp(19px,2.4vw,25px); font-weight:700;}
+  .brandline h1 span{color:var(--ink-3); font-weight:600;}
+  .tagline{margin:.35rem 0 0; color:var(--ink-2); font-size:13.5px; max-width:46ch;}
+  .brandline .eyebrow{margin-bottom:.45rem;}
+
+  .run-head{display:flex; justify-content:space-between; align-items:baseline; margin-bottom:8px; gap:12px;}
+  .run-head .now{font-size:12.5px; color:var(--ink-2); font-weight:600; letter-spacing:.02em;}
+  .run-head .now b{color:var(--ink);}
+  .run-head .pct{font-size:17px; font-weight:700; color:var(--accent-2);}
+  @media (prefers-color-scheme:dark){.run-head .pct{color:var(--accent)}}
+  :root[data-theme="dark"] .run-head .pct{color:var(--accent)}
+  :root[data-theme="light"] .run-head .pct{color:var(--accent-2)}
+
+  .cells{display:flex; gap:6px; align-items:stretch;}
+  .blk{display:flex; gap:2.5px; flex:1;}
+  .cell{
+    flex:1; height:26px; border-radius:3px; background:var(--surface-3);
+    border:1px solid var(--line); cursor:pointer; position:relative; padding:0;
+    transition:transform .12s ease, background .2s ease, border-color .2s ease;
+  }
+  .cell:hover{transform:translateY(-2px);}
+  .cell.done{background:var(--accent); border-color:var(--accent);}
+  .cell.part{background:linear-gradient(to top, var(--accent) var(--f,50%), var(--surface-3) var(--f,50%)); border-color:var(--accent-line);}
+  .cell.now{border-color:var(--ink); box-shadow:0 0 0 2px var(--bg),0 0 0 3px var(--ink);}
+  .cell.now::after{content:"NOW"; position:absolute; top:-16px; left:50%; transform:translateX(-50%);
+    font:600 8.5px/1 "Cascadia Code",ui-monospace,monospace; letter-spacing:.1em; color:var(--ink); white-space:nowrap;}
+  .blklabels{display:flex; gap:6px; margin-top:7px;}
+  .blklabel{flex:1; text-align:center; font-size:10px; letter-spacing:.1em; color:var(--ink-3); font-weight:600;}
+  .blklabel b{color:var(--ink-2);}
+
+  /* ---------- kpi strip ---------- */
+  .kpis{display:grid; grid-template-columns:repeat(2,1fr); gap:10px; padding:14px 0;}
+  @media(min-width:680px){ .kpis{grid-template-columns:repeat(4,1fr);} }
+  .kpi{background:var(--surface); border:1px solid var(--line); border-radius:var(--radius); padding:12px 14px;}
+  .kpi .k-lab{font-size:10.5px; letter-spacing:.12em; text-transform:uppercase; color:var(--ink-3); font-weight:600;}
+  .kpi .k-val{font-size:24px; font-weight:750; margin-top:4px; letter-spacing:-.02em;}
+  .kpi .k-val small{font-size:13px; color:var(--ink-3); font-weight:600;}
+  .kpi .k-sub{font-size:11.5px; color:var(--ink-2); margin-top:2px;}
+
+  /* ---------- subnav ---------- */
+  .subnav{position:sticky; top:0; z-index:30; background:var(--bg); border-bottom:1px solid var(--line);}
+  .subnav .wrap{display:flex; gap:6px; overflow-x:auto; padding-top:10px; padding-bottom:10px; scrollbar-width:thin;}
+  .subnav a{
+    flex:0 0 auto; font-size:12.5px; font-weight:600; color:var(--ink-2); text-decoration:none;
+    padding:6px 12px; border-radius:999px; border:1px solid var(--line); background:var(--surface); white-space:nowrap;
+  }
+  .subnav a:hover{color:var(--ink); border-color:var(--line-2);}
+
+  /* ---------- sections ---------- */
+  main{padding:26px 0 60px;}
+  section{margin-bottom:34px; scroll-margin-top:76px;}
+  .sec-head{display:flex; align-items:baseline; gap:12px; margin:0 0 14px;}
+  .sec-head h2{font-size:clamp(17px,2vw,21px); font-weight:700;}
+  .sec-head .sec-num{font:600 12px/1 "Cascadia Code",ui-monospace,monospace; color:var(--accent-2); padding-top:3px;}
+  @media (prefers-color-scheme:dark){.sec-head .sec-num{color:var(--accent)}}
+  :root[data-theme="dark"] .sec-head .sec-num{color:var(--accent)}
+  :root[data-theme="light"] .sec-head .sec-num{color:var(--accent-2)}
+  .sec-head .sec-sub{color:var(--ink-3); font-size:13px; margin-left:auto; text-align:right;}
+
+  .card{background:var(--surface); border:1px solid var(--line); border-radius:var(--radius); box-shadow:var(--shadow);}
+  .pad{padding:clamp(16px,2.4vw,22px);}
+
+  /* this-week */
+  .now-card{border:1px solid var(--accent-line); box-shadow:var(--shadow);}
+  .now-card .nc-top{display:flex; flex-wrap:wrap; align-items:baseline; gap:10px 14px; padding:16px 20px; border-bottom:1px solid var(--line);
+    background:var(--accent-wash); border-radius:var(--radius) var(--radius) 0 0;}
+  .now-card .nc-code{font:700 15px/1 "Cascadia Code",ui-monospace,monospace; color:var(--accent-2);}
+  @media (prefers-color-scheme:dark){.now-card .nc-code{color:var(--accent)}}
+  :root[data-theme="dark"] .now-card .nc-code{color:var(--accent)}
+  :root[data-theme="light"] .now-card .nc-code{color:var(--accent-2)}
+  .now-card .nc-title{font-size:17px; font-weight:700;}
+  .now-card .nc-dates{font-size:12.5px; color:var(--ink-2);}
+  .now-card .nc-badge{margin-left:auto; font:600 10px/1 "Cascadia Code",monospace; letter-spacing:.12em; color:#fff; background:var(--accent);
+    padding:5px 9px; border-radius:999px;}
+
+  /* item list */
+  .grp-lab{font-size:11px; letter-spacing:.13em; text-transform:uppercase; color:var(--ink-3); font-weight:700; margin:16px 0 8px;}
+  .grp-lab:first-child{margin-top:0;}
+  ul.items{list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:2px;}
+  .item{display:flex; gap:11px; align-items:flex-start; padding:7px 8px; border-radius:7px; line-height:1.45;}
+  .item:hover{background:var(--surface-2);}
+  .item input{appearance:none; -webkit-appearance:none; flex:0 0 auto; width:18px; height:18px; margin:2px 0 0; border:1.5px solid var(--line-2);
+    border-radius:5px; background:var(--surface); cursor:pointer; position:relative; transition:.15s;}
+  .item input:hover{border-color:var(--accent);}
+  .item input:checked{background:var(--accent); border-color:var(--accent);}
+  .item input:checked::after{content:""; position:absolute; left:5px; top:1.5px; width:5px; height:9px; border:solid #fff; border-width:0 2px 2px 0; transform:rotate(42deg);}
+  @media (prefers-color-scheme:dark){.item input:checked::after{border-color:#0D1116}}
+  :root[data-theme="dark"] .item input:checked::after{border-color:#0D1116}
+  :root[data-theme="light"] .item input:checked::after{border-color:#fff}
+  .item label{flex:1; cursor:pointer; font-size:14px; color:var(--ink);}
+  .item.done label{color:var(--ink-3); text-decoration:line-through; text-decoration-color:var(--ink-3);}
+  .tag{flex:0 0 auto; font:600 9.5px/1.6 "Cascadia Code",ui-monospace,monospace; letter-spacing:.06em; padding:2px 6px; border-radius:5px;
+    border:1px solid var(--line); color:var(--ink-2); background:var(--surface-2); text-transform:uppercase; margin-top:1px;}
+  .tag.book{color:var(--ink-2);}
+  .tag.repro{color:var(--accent-2); border-color:var(--accent-line);}
+  @media (prefers-color-scheme:dark){.tag.repro{color:var(--accent)}}
+  .tag.proj{color:var(--accent-2); border-color:var(--accent-line); background:var(--accent-wash);}
+  @media (prefers-color-scheme:dark){.tag.proj{color:var(--accent)}}
+  .tag.cert{color:var(--warn); border-color:var(--warn-line); background:var(--warn-wash);}
+  .tag.post{color:var(--ink-2);}
+  .item .del{font-weight:700;}
+  .note{margin-top:12px; font-size:12.5px; color:var(--warn); background:var(--warn-wash); border:1px solid var(--warn-line);
+    padding:8px 12px; border-radius:8px;}
+
+  /* timeline blocks */
+  .block{margin-bottom:16px;}
+  .block-head{display:flex; align-items:center; gap:14px; padding:12px 4px 12px 2px;}
+  .block-tag{font:700 13px/1 "Cascadia Code",monospace; width:30px; height:30px; display:grid; place-items:center; border-radius:8px;
+    background:var(--accent-wash); color:var(--accent-2); border:1px solid var(--accent-line); flex:0 0 auto;}
+  @media (prefers-color-scheme:dark){.block-tag{color:var(--accent)}}
+  .block-head .bh-title{font-weight:700; font-size:15.5px;}
+  .block-head .bh-meta{font-size:12px; color:var(--ink-3);}
+  .block-prog{margin-left:auto; display:flex; align-items:center; gap:10px; min-width:120px;}
+  .bar{height:6px; border-radius:99px; background:var(--surface-3); overflow:hidden; flex:1; min-width:60px;}
+  .bar > i{display:block; height:100%; background:var(--accent); border-radius:99px; width:0; transition:width .4s ease;}
+  .block-prog .bp{font:600 12px/1 "Cascadia Code",monospace; color:var(--ink-2); min-width:34px; text-align:right;}
+
+  .week{border:1px solid var(--line); border-radius:9px; background:var(--surface); margin-bottom:7px; overflow:hidden;}
+  .week.is-now{border-color:var(--accent-line); box-shadow:0 0 0 1px var(--accent-line);}
+  .wk-head{display:flex; align-items:center; gap:12px; width:100%; text-align:left; background:none; border:0; cursor:pointer;
+    padding:11px 14px; color:inherit; font:inherit;}
+  .wk-head:hover{background:var(--surface-2);}
+  .wk-code{font:700 12.5px/1 "Cascadia Code",monospace; color:var(--ink-2); flex:0 0 auto; width:34px;}
+  .week.is-now .wk-code{color:var(--accent-2);}
+  @media (prefers-color-scheme:dark){.week.is-now .wk-code{color:var(--accent)}}
+  .wk-title{font-size:14px; font-weight:600; flex:1; min-width:0;}
+  .wk-dates{font-size:11.5px; color:var(--ink-3); flex:0 0 auto;}
+  .wk-mini{width:52px; flex:0 0 auto;}
+  .wk-chev{flex:0 0 auto; color:var(--ink-3); transition:transform .2s ease;}
+  .week.open .wk-chev{transform:rotate(90deg);}
+  .wk-body{padding:2px 16px 16px; border-top:1px solid var(--line); display:none;}
+  .week.open .wk-body{display:block;}
+  .nowpill{font:600 9px/1 "Cascadia Code",monospace; letter-spacing:.1em; color:#fff; background:var(--accent); padding:3px 7px; border-radius:99px; flex:0 0 auto;}
+
+  /* generic grid of cards */
+  .grid{display:grid; gap:14px;}
+  @media(min-width:720px){ .grid.two{grid-template-columns:1fr 1fr;} }
+  @media(min-width:820px){ .grid.three{grid-template-columns:repeat(3,1fr);} }
+
+  .proj{display:flex; flex-direction:column;}
+  .proj .p-head{display:flex; align-items:center; gap:10px; padding:14px 16px 10px;}
+  .proj .p-id{font:700 13px/1 "Cascadia Code",monospace; color:var(--accent-2); background:var(--accent-wash); border:1px solid var(--accent-line);
+    padding:5px 8px; border-radius:7px;}
+  @media (prefers-color-scheme:dark){.proj .p-id{color:var(--accent)}}
+  .proj.anchor .p-id{background:var(--accent); color:#fff; border-color:var(--accent);}
+  .proj .p-name{font-weight:700; font-size:15px; line-height:1.2;}
+  .proj .p-tag{font-size:11.5px; color:var(--ink-3);}
+  .proj .p-body{padding:0 16px 14px; font-size:13px; color:var(--ink-2); flex:1;}
+  .proj .p-body p{margin:.5rem 0;}
+  .proj .metrics{font-size:12px; color:var(--ink-2); margin-top:8px;}
+  .proj .metrics b{color:var(--ink);}
+  .anchor-flag{margin-left:auto; font:600 9.5px/1 "Cascadia Code",monospace; letter-spacing:.1em; color:var(--accent-2); border:1px solid var(--accent-line);
+    padding:4px 7px; border-radius:99px;}
+  @media (prefers-color-scheme:dark){.anchor-flag{color:var(--accent)}}
+  .deploy-row{display:flex; align-items:center; gap:10px; padding:11px 16px; border-top:1px solid var(--line); background:var(--surface-2); font-size:12.5px;}
+  .deploy-row label{cursor:pointer; color:var(--ink-2); font-weight:600;}
+  .deploy-row.on label{color:var(--accent-2);}
+  @media (prefers-color-scheme:dark){.deploy-row.on label{color:var(--accent)}}
+
+  table.facts{width:100%; border-collapse:collapse; font-size:13px; margin-top:6px;}
+  table.facts td{padding:6px 8px; border-bottom:1px solid var(--line); vertical-align:top;}
+  table.facts td:first-child{color:var(--ink-2); width:42%;}
+  table.facts td .mono{color:var(--ink);}
+  table.facts tr:last-child td{border-bottom:0;}
+
+  .pill{display:inline-block; font:600 11px/1.5 "Cascadia Code",monospace; padding:2px 8px; border-radius:99px; border:1px solid var(--line);}
+  .pill.g{color:var(--accent-2); border-color:var(--accent-line); background:var(--accent-wash);}
+  @media (prefers-color-scheme:dark){.pill.g{color:var(--accent)}}
+  .pill.y{color:var(--warn); border-color:var(--warn-line); background:var(--warn-wash);}
+  .pill.r{color:var(--crit); border-color:var(--crit-line); background:var(--crit-wash);}
+
+  .alert{border:1px solid var(--crit-line); background:var(--crit-wash); border-radius:9px; padding:12px 15px; font-size:13px; color:var(--ink);}
+  .alert .mono{color:var(--crit); font-weight:700;}
+  .alert.warn{border-color:var(--warn-line); background:var(--warn-wash);}
+  .alert.warn .mono{color:var(--warn);}
+
+  .cp{border-left:3px solid var(--line-2); padding:2px 0 2px 15px; margin-bottom:16px;}
+  .cp.big{border-left-color:var(--accent);}
+  .cp h4{margin:0 0 3px; font-size:14.5px;}
+  .cp .cp-q{font-size:12.5px; color:var(--ink-2); font-style:italic;}
+  .cp .cp-when{font:600 11px/1 "Cascadia Code",monospace; color:var(--ink-3); letter-spacing:.04em;}
+  .cp .cp-grades{display:flex; flex-wrap:wrap; gap:6px; margin-top:8px;}
+
+  .rules{list-style:none; margin:0; padding:0; counter-reset:r; display:grid; gap:9px;}
+  .rules li{counter-increment:r; display:flex; gap:12px; font-size:13.5px; color:var(--ink); align-items:flex-start;}
+  .rules li::before{content:counter(r); font:700 11px/1.7 "Cascadia Code",monospace; color:var(--accent-2); background:var(--accent-wash);
+    border:1px solid var(--accent-line); width:22px; height:22px; border-radius:6px; text-align:center; flex:0 0 auto;}
+  @media (prefers-color-scheme:dark){.rules li::before{color:var(--accent)}}
+  .rules li b{font-weight:700;}
+
+  .links{list-style:none; margin:0; padding:0; display:grid; gap:2px;}
+  .links li{display:flex; gap:12px; align-items:baseline; padding:8px 6px; border-bottom:1px solid var(--line); font-size:13px;}
+  .links li:last-child{border-bottom:0;}
+  .links .l-name{font-weight:600; flex:0 0 40%;}
+  .links .l-when{color:var(--ink-2); flex:1;}
+
+  .prose{font-size:14px; color:var(--ink-2); max-width:68ch;}
+  .prose p{margin:.7rem 0;}
+  .prose b, .prose strong{color:var(--ink);}
+  .lead{font-size:15px; color:var(--ink); max-width:70ch;}
+
+  textarea.parking{width:100%; min-height:96px; resize:vertical; background:var(--surface-2); border:1px dashed var(--line-2); border-radius:8px;
+    padding:12px 14px; color:var(--ink); font-family:"Cascadia Code",ui-monospace,monospace; font-size:12.5px; line-height:1.6;}
+  textarea.parking:focus{outline:2px solid var(--accent); border-style:solid;}
+  .save-hint{font-size:11.5px; color:var(--ink-3); margin-top:6px;}
+
+  .verdict{display:inline-flex; align-items:center; gap:9px; font:700 13px/1 "Cascadia Code",monospace; letter-spacing:.06em;
+    color:var(--accent-2); background:var(--accent-wash); border:1px solid var(--accent-line); padding:9px 14px; border-radius:99px;}
+  @media (prefers-color-scheme:dark){.verdict{color:var(--accent)}}
+  .verdict .dot{width:8px; height:8px; border-radius:99px; background:var(--accent);}
+
+  footer{border-top:1px solid var(--line); padding:22px 0 40px; color:var(--ink-3); font-size:12px;}
+  footer .wrap{display:flex; flex-wrap:wrap; gap:8px 18px; justify-content:space-between; align-items:center;}
+
+  /* save & sync */
+  .sync{display:flex; flex-wrap:wrap; align-items:center; gap:12px 16px;}
+  .sync-status{font-size:13px; color:var(--ink-2); flex:1; min-width:220px; display:flex; align-items:center; gap:9px;}
+  .sync-status b{color:var(--ink);}
+  .sync .dot{width:9px; height:9px; border-radius:99px; background:var(--ink-3); flex:0 0 auto;}
+  .sync .dot.on{background:var(--accent);}
+  .sync .dot.err{background:var(--crit);}
+  .sync-actions{display:flex; gap:8px; flex-wrap:wrap;}
+  .btn{font:600 12.5px/1 "Segoe UI",system-ui,sans-serif; padding:9px 14px; border-radius:8px; border:1px solid var(--line-2); background:var(--surface); color:var(--ink); cursor:pointer; transition:border-color .15s, color .15s, background .15s;}
+  .btn:hover{border-color:var(--accent); color:var(--accent-2);}
+  @media (prefers-color-scheme:dark){.btn:hover{color:var(--accent)}}
+  :root[data-theme="dark"] .btn:hover{color:var(--accent)}
+  .btn.primary{background:var(--accent); border-color:var(--accent); color:#fff;}
+  @media (prefers-color-scheme:dark){.btn.primary{color:#0D1116}}
+  :root[data-theme="dark"] .btn.primary{color:#0D1116}
+  :root[data-theme="light"] .btn.primary{color:#fff}
+  .btn.primary:hover{background:var(--accent-2); color:#fff;}
+  @media (prefers-color-scheme:dark){.btn.primary:hover{color:#0D1116}}
+  :root[data-theme="dark"] .btn.primary:hover{color:#0D1116; background:var(--accent-2)}
+  .sync-hint{flex-basis:100%; font-size:11.5px; color:var(--ink-3); margin:2px 0 0; max-width:78ch;}
+
+  .legend{display:flex; flex-wrap:wrap; gap:6px 12px; font-size:11px; color:var(--ink-3); margin-top:10px;}
+  .legend span{display:inline-flex; align-items:center; gap:5px;}
+  .sw{width:12px; height:12px; border-radius:3px; border:1px solid var(--line);}
+  .sw.done{background:var(--accent); border-color:var(--accent);}
+  .sw.now{border-color:var(--ink); box-shadow:inset 0 0 0 1px var(--surface);}
+  .sw.todo{background:var(--surface-3);}
+
+  @media (prefers-reduced-motion:reduce){ *{transition:none!important; animation:none!important;} }
+</style>
+
+<header class="topbar">
+  <div class="wrap topgrid">
+    <div class="brandline">
+      <div class="eyebrow">6-month run · Jul 18 – Dec 30 2026</div>
+      <h1>Become a production-LLM engineer <span>— in public</span></h1>
+      <p class="tagline">Applied LLM / RAG / agents, with an LLM-eval + MLOps reliability wedge. Hedged with classic ML. <b>ex-SDET · GSoC 2024.</b></p>
+    </div>
+    <div class="run" aria-label="24-week run progress">
+      <div class="run-head">
+        <span class="now" id="run-now">Week — / 24</span>
+        <span class="pct mono" id="run-pct">0%</span>
+      </div>
+      <div class="cells" id="cells"></div>
+      <div class="blklabels">
+        <div class="blklabel">BLOCK <b>A</b><br>setup + cert</div>
+        <div class="blklabel">BLOCK <b>B</b><br>core DL</div>
+        <div class="blklabel">BLOCK <b>C</b><br>LLMs · anchors</div>
+        <div class="blklabel">BLOCK <b>D</b><br>agents · position</div>
+      </div>
+    </div>
+  </div>
+</header>
+
+<div class="wrap">
+  <div class="kpis">
+    <div class="kpi"><div class="k-lab">Timeline</div><div class="k-val mono" id="kpi-timeline">0<small>%</small></div><div class="k-sub">core items done</div></div>
+    <div class="kpi"><div class="k-lab">Now</div><div class="k-val" id="kpi-now" style="font-size:19px">—</div><div class="k-sub" id="kpi-now-sub">by today's date</div></div>
+    <div class="kpi"><div class="k-lab">Projects live</div><div class="k-val mono" id="kpi-proj">0<small> / 6</small></div><div class="k-sub">deployed URLs</div></div>
+    <div class="kpi"><div class="k-lab">Posts shipped</div><div class="k-val mono" id="kpi-posts">0<small> / 12</small></div><div class="k-sub">milestone posts</div></div>
+  </div>
+</div>
+
+<nav class="subnav" aria-label="Sections">
+  <div class="wrap">
+    <a href="#now">This week</a>
+    <a href="#timeline">Timeline</a>
+    <a href="#projects">Projects</a>
+    <a href="#certs">Certs</a>
+    <a href="#checkpoints">Checkpoints</a>
+    <a href="#brand">Brand</a>
+    <a href="#resources">Resources</a>
+    <a href="#why">Why it survives AI</a>
+    <a href="#rules">Operating rules</a>
+    <a href="#sync">Save / sync</a>
+  </div>
+</nav>
+
+<main class="wrap">
+
+  <section id="now">
+    <div class="sec-head"><span class="sec-num">01</span><h2>This week</h2><span class="sec-sub">auto-selected from today · <span class="mono" id="today-str"></span></span></div>
+    <div id="thisweek"></div>
+  </section>
+
+  <section id="timeline">
+    <div class="sec-head"><span class="sec-num">02</span><h2>The 24-week run</h2><span class="sec-sub">4 blocks · tick a week open to work it</span></div>
+    <div id="blocks"></div>
+    <div class="legend" aria-hidden="true">
+      <span><span class="sw done"></span>done</span>
+      <span><span class="sw now"></span>this week</span>
+      <span><span class="sw todo"></span>upcoming</span>
+      <span style="margin-left:auto">Never cut: SAA · Ch 11–12 · Ch 15 · nanoGPT · P3 · P4 · weekly posts</span>
+    </div>
+  </section>
+
+  <section id="projects">
+    <div class="sec-head"><span class="sec-num">03</span><h2>Portfolio projects</h2><span class="sec-sub">bar = live demo URL + Docker + tests + numbers</span></div>
+    <p class="prose" style="margin-top:-4px">Every project ships a <b>case study</b> and a <b>post</b>, and shows the <b>eval/testing</b> you did — the ex-SDET moat. Anchor trio to pin: <b>P3 · P4 · best of P1/P5</b>.</p>
+    <div class="grid three" id="projects-grid" style="margin-top:14px"></div>
+    <h3 style="font-size:14px; margin:22px 0 12px; letter-spacing:.02em">Reproductions <span style="color:var(--ink-3); font-weight:500">— packaged with paper→code writeups</span></h3>
+    <div class="grid three" id="repros-grid"></div>
+  </section>
+
+  <section id="certs">
+    <div class="sec-head"><span class="sec-num">04</span><h2>AWS certs</h2><span class="sec-sub">proof-of-results &gt; certs · certs are a credibility supplement</span></div>
+    <div class="grid two">
+      <div class="card pad">
+        <div style="display:flex; align-items:center; gap:10px; margin-bottom:6px">
+          <span class="p-id mono" style="font:700 12px/1 'Cascadia Code',monospace; color:var(--accent-2); background:var(--accent-wash); border:1px solid var(--accent-line); padding:5px 8px; border-radius:7px">SAA-C03</span>
+          <b style="font-size:15px">Solutions Architect – Associate</b>
+        </div>
+        <p class="prose" style="font-size:13px; margin:.4rem 0">August (W2–W6), as <b>revision</b>. No SAA-C04 exists. Drive it with Tutorials Dojo practice exams; TD runs ~8–13 pts harder than the real thing.</p>
+        <table class="facts">
+          <tr><td>Format</td><td><span class="mono">65 Q · 130 min · $150</span></td></tr>
+          <tr><td>Pass</td><td><span class="mono">720 / 1000</span> · compensatory → answer everything</td></tr>
+          <tr><td>Go / no-go</td><td><span class="mono">≥ 80%</span> on fresh TD sets</td></tr>
+          <tr><td>Domains</td><td>Secure <span class="mono">30%</span> · Resilient <span class="mono">26%</span> · High-perf <span class="mono">24%</span> · Cost <span class="mono">20%</span></td></tr>
+          <tr><td>Hours</td><td>~20–40 (true refresh) → budget <span class="mono">60–80</span> if it's a first real pass</td></tr>
+        </table>
+        <div class="deploy-row" id="cert-saa-row" style="margin-top:14px; border-top:1px solid var(--line); border-radius:0 0 var(--radius) var(--radius)">
+          <input type="checkbox" class="chk" data-k="cert.saa" id="chk-cert-saa" style="width:18px;height:18px" aria-label="SAA passed">
+          <label for="chk-cert-saa">Mark SAA-C03 passed</label>
+        </div>
+      </div>
+      <div class="card pad">
+        <div style="display:flex; align-items:center; gap:10px; margin-bottom:6px">
+          <span class="pill y">DECIDE IN SEPTEMBER · W9</span>
+        </div>
+        <b style="font-size:15px">AWS ML Engineer – Associate</b>
+        <div class="alert warn" style="margin:12px 0">
+          <span class="mono">⚠ HARD DEADLINE</span> — last day to sit <b>MLA-C01 (English) is Sept 28, 2026</b>. Its successor <b>MLA-C02</b> adds GenAI / agentic / Bedrock topics and lands standard in early 2027.
+        </div>
+        <p class="prose" style="font-size:13px; margin:.4rem 0"><b>The fork (run the framework in W9):</b></p>
+        <p class="prose" style="font-size:12.5px; margin:.3rem 0"><span class="pill g">DEFAULT</span> Target <b>MLA-C02 in Jan–Feb 2027</b> — GenAI-aligned, and it doesn't cannibalise the RAG project + Ch 15 that actually drive income.</p>
+        <p class="prose" style="font-size:12.5px; margin:.3rem 0"><span class="pill y">ONLY IF</span> SAA finished with time + appetite to spare: <b>race MLA-C01, sit by Sep 26</b> (48-hr buffer). Accept P3 slides to October.</p>
+      </div>
+    </div>
+  </section>
+
+  <section id="checkpoints">
+    <div class="sec-head"><span class="sec-num">05</span><h2>Checkpoints — the governance layer</h2><span class="sec-sub">change strategy only here · execute in between</span></div>
+    <div class="grid two">
+      <div class="card pad">
+        <p class="prose" style="margin-top:0"><b>The one rule:</b> you may only change strategy at a checkpoint — never between them. Mid-block doubts go to the parking lot and wait. Diagnose before acting: is it <b>execution</b> (not doing the work → fix inputs, extend timeline), <b>skill</b> (work happening, output weak → one focused sprint), or <b>market</b> (only diagnosable mid-2027, after a real outreach push)?</p>
+        <div id="cp-list" style="margin-top:14px"></div>
+      </div>
+      <div class="card pad">
+        <div class="grp-lab" style="margin-top:0">Parking lot — where thrash waits</div>
+        <p class="prose" style="font-size:12.5px; margin:.2rem 0 10px">A shiny new framework, a "maybe I should instead…", a viral post you saw. Write it here, keep executing, review it at the next checkpoint with real data.</p>
+        <textarea class="parking" id="parking" data-k="parking.text" placeholder="- (date) doubt / temptation / shiny thing…"></textarea>
+        <div class="save-hint">Saved in this browser as you type.</div>
+        <div class="grp-lab" style="margin-top:18px">Not a reason to pivot</div>
+        <p class="prose" style="font-size:12.5px; margin:.2rem 0">"This week was hard" (that's learning) · "No inbound yet" (audiences lag months) · "A post flopped" (judge the trend) · "I saw something shinier" (the most dangerous one) · "What if AI makes this pointless?" (settled below).</p>
+      </div>
+    </div>
+  </section>
+
+  <section id="brand">
+    <div class="sec-head"><span class="sec-num">06</span><h2>Reputation &amp; posting</h2><span class="sec-sub">~50 credible posts &gt; going viral</span></div>
+    <div class="grid two">
+      <div class="card pad">
+        <div class="grp-lab" style="margin-top:0">Milestone posts — tick when published</div>
+        <ul class="items" id="posts-list"></ul>
+      </div>
+      <div class="card pad">
+        <div class="grp-lab" style="margin-top:0">Profile = landing page</div>
+        <p class="prose" style="font-size:12.5px; margin:.2rem 0 4px"><b>Headline:</b> Building reliable LLM/ML systems | RAG · LLM Evaluation · MLOps | ex-SDET · GSoC 2024 | Open to freelance.</p>
+        <p class="prose" style="font-size:12.5px; margin:.2rem 0 4px"><b>Featured:</b> P3 RAG API · nanoGPT writeup · P4 eval pipeline.</p>
+        <div class="grp-lab">Content engine — never run dry</div>
+        <p class="prose" style="font-size:12.5px; margin:.2rem 0"><b>3 pillars × 10 angles = 30 seeds.</b> Pillars: technical depth · learning-in-public · freelance/industry takes. Jot one seed per study session.</p>
+        <div class="grp-lab">Formats &amp; cadence</div>
+        <p class="prose" style="font-size:12.5px; margin:.2rem 0">PDF carousels &amp; "How I…" case studies win. Strong first 150 chars; links in the first comment. <b>2–3 posts/week</b> batched in the Sunday block; 80% engaging with others, 20% posting.</p>
+        <div class="grp-lab">Freelance home (2027)</div>
+        <p class="prose" style="font-size:12.5px; margin:.2rem 0"><b>Braintrust</b> (keep 100%, flat 15% client fee) as base; a <b>niched</b> Upwork profile. Package an <b>"LLM eval audit"</b> — the wedge turned into revenue.</p>
+      </div>
+    </div>
+  </section>
+
+  <section id="resources">
+    <div class="sec-head"><span class="sec-num">07</span><h2>Resource stack</h2><span class="sec-sub">layer on Géron · PyTorch + Hugging Face · deploy at least once</span></div>
+    <div class="grid two">
+      <div class="card pad">
+        <div class="grp-lab" style="margin-top:0">Core learning</div>
+        <ul class="links">
+          <li><span class="l-name"><a href="https://karpathy.ai/zero-to-hero.html" target="_blank" rel="noopener">Karpathy — Zero to Hero</a></span><span class="l-when">from-scratch backprop + attention; the "why"</span></li>
+          <li><span class="l-name"><a href="https://course.fast.ai/" target="_blank" rel="noopener">fast.ai</a></span><span class="l-when">fast code-first breadth pass for momentum</span></li>
+          <li><span class="l-name"><a href="https://huggingface.co/learn" target="_blank" rel="noopener">Hugging Face LLM Course</a></span><span class="l-when">primary applied LLM/NLP track</span></li>
+          <li><span class="l-name"><a href="https://www.deeplearning.ai/short-courses/" target="_blank" rel="noopener">DeepLearning.AI shorts</a></span><span class="l-when">1–2 hr deep dives per project (RAG, eval, agents)</span></li>
+          <li><span class="l-name"><a href="https://madewithml.com/courses/mlops/" target="_blank" rel="noopener">Made With ML</a></span><span class="l-when">gentlest MLOps on-ramp</span></li>
+          <li><span class="l-name"><a href="https://sebastianraschka.com/llms-from-scratch/" target="_blank" rel="noopener">Raschka — LLM from Scratch</a></span><span class="l-when">structured written complement to Karpathy</span></li>
+        </ul>
+      </div>
+      <div class="card pad">
+        <div class="grp-lab" style="margin-top:0">Production toolchain (2026)</div>
+        <p class="prose" style="font-size:12.5px; margin:.3rem 0"><b>Modeling:</b> PyTorch, HF Transformers/Datasets/PEFT, scikit-learn, XGBoost.</p>
+        <p class="prose" style="font-size:12.5px; margin:.3rem 0"><b>LLM apps:</b> LangChain / LlamaIndex, LangGraph, Chroma/FAISS/Qdrant, cross-encoder rerankers.</p>
+        <p class="prose" style="font-size:12.5px; margin:.3rem 0"><b>Evaluation (the wedge):</b> RAGAS, DeepEval, LangSmith, Phoenix/Arize, LLM-as-judge.</p>
+        <p class="prose" style="font-size:12.5px; margin:.3rem 0"><b>Serving/ops:</b> FastAPI, Docker, GitHub Actions, Railway/Render/Fly, vLLM, bitsandbytes, Evidently/Grafana.</p>
+        <p class="prose" style="font-size:12.5px; margin:.3rem 0"><b>Demos:</b> Gradio, Streamlit, Hugging Face Spaces.</p>
+        <div class="grp-lab">Credential upgrade</div>
+        <p class="prose" style="font-size:12.5px; margin:.3rem 0"><a href="https://blog.neurips.cc/2026/05/04/mlrc-2026-reproducibility-as-an-official-track-at-neurips/" target="_blank" rel="noopener">ML Reproducibility Challenge</a> is now an official NeurIPS 2026 track — a deep reproduction could become a citable credential.</p>
+      </div>
+    </div>
+  </section>
+
+  <section id="why">
+    <div class="sec-head"><span class="sec-num">08</span><h2>Why this survives the AI boom</h2><span class="sec-sub">re-read when the doubt returns — don't reopen it</span></div>
+    <div class="card pad">
+      <p class="lead" style="margin-top:0">"Do something else" isn't an exit from AI risk — it's a worse seat in the same theatre. The real question was never <i>ML vs. something else</i>; it's <b>be someone who commands AI, or someone disrupted by it.</b></p>
+      <p class="prose">The plan aims at <b>evaluation, testing, reliability, integration, production trust</b> — deliberately <b>countercyclical</b>: the better and more prolific AI gets, the more AI-generated systems exist, and the more someone is needed to verify they're correct, safe, and trustworthy. AI capability and demand for people who can tell whether AI output <i>actually works</i> rise together. The boom is your market: the paid-for last 20% — reliability, eval, security, integration — is exactly the wedge.</p>
+      <table class="facts" style="margin:14px 0">
+        <tr><td><b>If AI plateaus</b> — strong tool needing operators</td><td>Skilled builders win → <b>you win big</b></td></tr>
+        <tr><td><b>If AI is transformative</b> — commodity dev automated</td><td>Value → judgment, eval, trust → <b>still your wedge, better placed</b></td></tr>
+        <tr><td><b>If full AGI</b> — economy breaks</td><td>No career plan matters → moot for everyone</td></tr>
+      </table>
+      <p class="prose">Across every future where your choices matter, this plan is best-in-class; in the one where they don't, nothing beats it. It holds on one condition the plan already enforces: <b>stay above the automatable line</b> — deploy, evaluate, differentiate, own reliability. Never tutorial notebooks or commodity work.</p>
+      <div class="verdict"><span class="dot"></span>SETTLED — this question gets re-read here, not reopened</div>
+    </div>
+  </section>
+
+  <section id="rules">
+    <div class="sec-head"><span class="sec-num">09</span><h2>Operating rules &amp; the Sunday ritual</h2><span class="sec-sub">read once, live by them</span></div>
+    <div class="grid two">
+      <div class="card pad">
+        <div class="grp-lab" style="margin-top:0">The 8 rules</div>
+        <ul class="rules">
+          <li><span><b>Ship &gt; perfect.</b> A deployed 85% beats a local 99%. Deploy, then improve.</span></li>
+          <li><span><b>Deploy every project.</b> No demo URL = didn't happen.</span></li>
+          <li><span><b>Quantify everything.</b> "faithfulness 0.62 → 0.89", "640ms → 95ms". Numbers are credibility.</span></li>
+          <li><span><b>Lead with the wedge.</b> Show the testing/eval others skip.</span></li>
+          <li><span><b>Trim ruthlessly.</b> 4–6 hrs/chapter. Note the rabbit hole, move on.</span></li>
+          <li><span><b>Core vs. stretch.</b> Behind? Drop stretch — never the anchors, SAA, or Ch 15.</span></li>
+          <li><span><b>Post from the work,</b> not on top of it. Every session leaves a breadcrumb.</span></li>
+          <li><span><b>Protect momentum over completeness.</b> Missing Ch 19 is fine. Missing P3 is not.</span></li>
+        </ul>
+      </div>
+      <div class="card pad">
+        <div class="grp-lab" style="margin-top:0">Sunday ritual (~30 min)</div>
+        <ul class="rules">
+          <li><span>Open <b>This week</b>; read the row.</span></li>
+          <li><span>If it's a new chapter, ask me to generate its trimmed 4–6 hr lab set.</span></li>
+          <li><span>Write this week's <b>one concrete deliverable</b> on a sticky.</span></li>
+          <li><span>Batch last week's breadcrumbs into 2–3 posts.</span></li>
+          <li><span>Tick off the finished week; momentum is the whole game.</span></li>
+          <li><span><b>60-sec pulse:</b> did I hit my hours? did I ship something? Two N's in a row = fix the schedule now.</span></li>
+        </ul>
+        <p class="prose" style="font-size:12px; margin-top:14px">Source of truth stays the markdown in <span class="mono">.claude/2026-study-plan/</span>. This board is the operable view on top — ask me to regenerate it when the plan changes.</p>
+      </div>
+    </div>
+  </section>
+
+  <section id="sync">
+    <div class="sec-head"><span class="sec-num">10</span><h2>Save &amp; sync progress</h2><span class="sec-sub">keep a progress.json you can commit</span></div>
+    <div class="card pad sync">
+      <div class="sync-status" id="sync-status"></div>
+      <div class="sync-actions">
+        <button type="button" class="btn primary" id="sync-save">Save to file</button>
+        <button type="button" class="btn" id="sync-load">Load from file</button>
+        <button type="button" class="btn" id="sync-reconnect" hidden>Reconnect progress.json</button>
+      </div>
+      <p class="sync-hint">Progress always saves instantly in this browser. To keep it as a real file: in Chrome/Edge click <b>Save to file</b> once and pick <span class="mono">progress.json</span> in this folder — after that it auto-saves to that file on every change, and you can commit it to the repo. Other browsers download / re-import the file instead of live-syncing.</p>
+    </div>
+  </section>
+
+</main>
+
+<footer>
+  <div class="wrap">
+    <span>Generated from your plan · <span class="mono">.claude/2026-study-plan/</span></span>
+    <span>Progress: browser storage + optional <span class="mono">progress.json</span>. <a href="#" id="reset">Reset progress</a></span>
+  </div>
+</footer>
+
+<script>
+(function(){
+  "use strict";
+  var LS="mlplan.v1.";
+  var store={};
+  try{ for(var i=0;i<localStorage.length;i++){var k=localStorage.key(i); if(k.indexOf(LS)===0){ store[k.slice(LS.length)]=localStorage.getItem(k);} } }catch(e){}
+  function get(k){ return store[k]; }
+  function getB(k){ return store[k]==="1"; }
+  function set(k,v){ store[k]=v; try{ localStorage.setItem(LS+k, v); }catch(e){} }
+  function del(k){ delete store[k]; try{ localStorage.removeItem(LS+k);}catch(e){} }
+
+  // ---------- data ----------
+  var TYPE={book:"CH",repro:"REPRO",proj:"PROJ",cert:"CERT",post:"POST",task:"DO"};
+  function it(t,x){return {t:t,x:x};}
+  var WEEKS=[
+   {id:1,blk:"A",start:"2026-07-18",dates:"Jul 18–24",title:"Foundations & ignition",
+    core:[it("book","Finish Ch 10 loose ends — Optuna, save/load, torch.compile (labs 10–12)"),
+          it("task","Make the repo production-minded: pinned deps, src/ layout, Makefile, README"),
+          it("post","Rewrite LinkedIn as a landing page + ship post #1 (“6 months to production LLM engineer”)"),
+          it("cert","Pick SAA resources; take a diagnostic Tutorials Dojo timed test")],
+    stretch:["Skim Ch 9 (Scikit-Learn MLP) as a 30-min bridge to PyTorch"],
+    del:"Repo restructured + profile live + SAA baseline score"},
+   {id:2,blk:"A",start:"2026-07-25",dates:"Jul 25–31",title:"SAA: Secure Architectures (30%)",
+    core:[it("cert","SAA Domain 1 — IAM, KMS, encryption, security groups, VPC security (the biggest domain)"),
+          it("book","Ch 7 (Dimensionality Reduction) light — PCA intuition + one hands-on notebook")],
+    stretch:["TD cheat-sheet pass on VPC/networking"],
+    del:"Domain-1 practice set ≥ 70%"},
+   {id:3,blk:"A",start:"2026-08-01",dates:"Aug 1–7",title:"SAA: Resilient + High-Performing (26%+24%)",
+    core:[it("cert","SAA Domains 2–3 — multi-AZ, ELB/ASG, RDS/Aurora, S3 tiers, caching, SQS/SNS"),
+          it("book","Ch 8 (Unsupervised) light — k-means + DBSCAN + GMM for anomaly detection")],
+    stretch:["post #2 — “PCA explained by actually compressing an image”"],
+    del:"Domains 2–3 practice set ≥ 70%"},
+   {id:4,blk:"A",start:"2026-08-08",dates:"Aug 8–14",title:"SAA: Cost + weak-area drilling",
+    core:[it("cert","SAA Domain 4 (cost) + re-drill weakest domain; start full-length TD exams"),
+          it("proj","Start P0 — anomaly/clustering demo on a real-ish dataset (uses Ch 8)")],
+    stretch:[],
+    del:"First full TD exam done + reviewed (expect ~65–75%)"},
+   {id:5,blk:"A",start:"2026-08-15",dates:"Aug 15–21",title:"SAA: exam-ready",
+    core:[it("cert","TD full exams until ≥ 80% on fresh sets (go/no-go); review every wrong answer"),
+          it("proj","Finish + deploy P0 (Streamlit / HF Space)")],
+    stretch:[],
+    del:"≥ 80% fresh TD + P0 live URL"},
+   {id:6,blk:"A",start:"2026-08-22",dates:"Aug 22–28",title:"Sit SAA + reset",
+    core:[it("cert","Sit AWS SAA-C03 (book it Tue–Thu)"),
+          it("post","post #3 — “Passed SAA-C03 — my 4-week revision loop”"),
+          it("proj","Write P0 case study; pin it"),
+          it("book","Begin Ch 11 reading")],
+    stretch:[],
+    del:"SAA passed 🎉 · P0 case study published"},
+   {id:7,blk:"B",start:"2026-08-29",dates:"Aug 29–Sep 4",title:"Ch 11 (Training DNNs) + makemore",
+    core:[it("book","Ch 11 core labs: init, activations, BatchNorm/LayerNorm, optimizers, LR schedules, dropout"),
+          it("repro","Start makemore — char-level LM from scratch (Karpathy)")],
+    stretch:["Ch 11 gradient-clipping + max-norm labs"],
+    del:"Reusable train()/build_mlp() helper + makemore bigram/MLP stages working"},
+   {id:8,blk:"B",start:"2026-09-05",dates:"Sep 5–11",title:"Finish Ch 11 + makemore",
+    core:[it("book","Wrap Ch 11 — assemble the “default recipe” pipeline"),
+          it("repro","Finish makemore (through the MLP/WaveNet stage)"),
+          it("post","post #4 — “I built a neural language model from scratch”")],
+    stretch:[],
+    del:"makemore repo + annotated README (mini paper→code writeup)"},
+   {id:9,blk:"B",start:"2026-09-12",dates:"Sep 12–18",title:"Ch 12 (CNNs) + ⚠ CERT DECISION",
+    core:[it("book","Ch 12 core: conv/pool, standard recipe, transfer learning, a ResNet block"),
+          it("proj","Start P1 — transfer-learning image classifier (fine-grained, pretrained backbone)"),
+          it("cert","CERT DECISION — race MLA-C01 (sit by Sep 26) or target MLA-C02? Default: C02")],
+    stretch:[],
+    del:"Cert decision made & written down · P1 training working"},
+   {id:10,blk:"B",start:"2026-09-19",dates:"Sep 19–25",title:"Finish Ch 12 + deploy P1",
+    core:[it("book","Finish Ch 12"),
+          it("proj","Deploy P1 to HF Space (Gradio) + eval report: per-class acc, confusion matrix, failure cases"),
+          it("post","post #5 — P1 case study (“transfer learning got me X% with N images/class”)")],
+    stretch:[],
+    note:"If racing MLA-C01: this + next week go cert-heavy; sit by Sep 26.",
+    del:"P1 live URL + case study"},
+   {id:11,blk:"B",start:"2026-09-26",dates:"Sep 26–Oct 2",title:"Ch 13 (Sequences / time-series)",
+    core:[it("book","Ch 13 core: RNN/LSTM, forecasting, windowing/data-prep, ARMA baseline"),
+          it("proj","Start P2 — forecasting / predictive-maintenance (classic-ML hedge; XGBoost vs LSTM)")],
+    stretch:["Multivariate / multi-step forecasting lab"],
+    del:"P2 baseline + LSTM comparison notebook"},
+   {id:12,blk:"B",start:"2026-10-03",dates:"Oct 3–9",title:"Deploy P2 (the hedge project)",
+    core:[it("proj","Deploy P2 as a small FastAPI service + metrics writeup (MAE/RMSE vs baseline)"),
+          it("post","post #6 — “Classic ML still pays: XGBoost vs LSTM, and which I'd ship”")],
+    stretch:[],
+    del:"P2 live + case study — Block B done: 3 deployed things + 1 reproduction"},
+   {id:13,blk:"C",start:"2026-10-10",dates:"Oct 10–16",title:"Ch 14 (NLP + attention) + nanoGPT start",
+    core:[it("book","Ch 14 core: embeddings, char-RNN, the attention mechanism, HF tokenizers"),
+          it("repro","Start nanoGPT / build-nanogpt (reproduce a GPT-2-class model, scaled to your hardware)")],
+    stretch:[],
+    del:"Attention understood cold + nanoGPT training loop running"},
+   {id:14,blk:"C",start:"2026-10-17",dates:"Oct 17–23",title:"Ch 15 (Transformers) deep + nanoGPT",
+    core:[it("book","Ch 15 pt 1 — positional encoding, multi-head attention, build an encoder-decoder"),
+          it("repro","nanoGPT continues")],
+    stretch:[],
+    del:"You can draw the Transformer block from memory · nanoGPT generating text"},
+   {id:15,blk:"C",start:"2026-10-24",dates:"Oct 24–30",title:"Finish nanoGPT + start P3",
+    core:[it("repro","Finish nanoGPT; write the paper→code annotated writeup"),
+          it("post","post #7 — “I reproduced GPT-2 from scratch — the 4 ideas behind a Transformer”"),
+          it("proj","Start P3 — domain-specific RAG API (anchor): pick a niche corpus")],
+    stretch:[],
+    del:"nanoGPT writeup published + P3 ingestion/chunking pipeline"},
+   {id:16,blk:"C",start:"2026-10-31",dates:"Oct 31–Nov 6",title:"Ch 15 (LLMs) + P3 build",
+    core:[it("book","Ch 15 pt 2 — encoder/decoder-only, SFT/RLHF/DPO, chatbots, MCP (grasp concepts)"),
+          it("proj","P3 core: vector DB + retrieval + reranking + a generation endpoint")],
+    stretch:[],
+    del:"P3 answers questions end-to-end (rough)"},
+   {id:17,blk:"C",start:"2026-11-07",dates:"Nov 7–13",title:"Finish + deploy P3 (anchor)",
+    core:[it("proj","Add RAGAS eval, wrap in FastAPI + Docker, deploy. Quantify faithfulness, relevancy, hit-rate, latency/cost"),
+          it("post","post #8 — P3 case study (“with the eval numbers most demos hide”)")],
+    stretch:[],
+    del:"P3 live URL + eval dashboard + case study — your flagship"},
+   {id:18,blk:"C",start:"2026-11-14",dates:"Nov 14–20",title:"Appendix B (quantization) + LoRA",
+    core:[it("book","Appendix B — mixed precision, quantization, QAT/PTQ (feeds the inference/MLOps wedge)"),
+          it("repro","LoRA/QLoRA fine-tune reproduction (from-scratch adapter → PEFT; free Colab T4)"),
+          it("proj","Start P4 — LLM eval & observability pipeline over P3")],
+    stretch:[],
+    del:"A fine-tuned adapter + P4 tracing scaffold"},
+   {id:19,blk:"C",start:"2026-11-21",dates:"Nov 21–27",title:"P4 (your wedge) build",
+    core:[it("proj","P4: RAGAS/DeepEval suite + LangSmith/Phoenix tracing + golden-dataset regression + an “LLM CI” GitHub Action that fails the build if faithfulness drops"),
+          it("post","post #9 — “The part of LLM apps everyone skips: how I test & evaluate them” ← signature post")],
+    stretch:[],
+    del:"P4 running as a CI gate on P3"},
+   {id:20,blk:"D",start:"2026-11-28",dates:"Nov 28–Dec 4",title:"Ch 16 + Ch 17 + finish P4",
+    core:[it("book","Ch 16 (ViT + CLIP) + Ch 17 (speeding up Transformers / inference optimization)"),
+          it("proj","Finish + polish P4; publish its case study")],
+    stretch:["A tiny CLIP zero-shot demo"],
+    del:"P4 case study live"},
+   {id:21,blk:"D",start:"2026-12-05",dates:"Dec 5–11",title:"P5 (agentic OR MLOps)",
+    core:[it("proj","P5 — pick one: (a) LangGraph agent w/ evals + cost/latency guardrails, or (b) MLOps service (Docker+CI+drift monitoring+alerting). Deploy it."),
+          it("post","post #10 — P5 case study")],
+    stretch:[],
+    del:"P5 live + case study"},
+   {id:22,blk:"D",start:"2026-12-12",dates:"Dec 12–18",title:"Ch 18/19 (light) + buffer",
+    core:[it("book","Ch 18 (autoencoders/GANs/diffusion — concepts + optional tiny DDPM) light; Ch 19 (RL) skim only")],
+    stretch:["A small diffusion sample grid → post #11"],
+    del:"Caught up; DL arc conceptually complete (this week absorbs slippage)"},
+   {id:23,blk:"D",start:"2026-12-19",dates:"Dec 19–25",title:"Consolidate the portfolio",
+    core:[it("task","Pin the 3 anchors (P3, P4, best of P1/P5); overhaul each README to Problem→Approach→Result→Impact with numbers"),
+          it("task","Build/polish a one-page portfolio site (GitHub Pages) linking demos, repros, posts"),
+          it("repro","Publish the LoRA writeup if not already")],
+    stretch:[],
+    del:"3 pinned, deployed, quantified projects + portfolio site"},
+   {id:24,blk:"D",start:"2026-12-26",dates:"Dec 26–30",title:"Position for 2027",
+    core:[it("task","Create Braintrust + a niched Upwork profile; write 3–5 quantified case studies into them"),
+          it("post","post #12 — “6 months building in public… open for freelance”"),
+          it("task","Draft the MLA-C02 Q1-2027 prep plan + a freelance-launch checklist")],
+    stretch:[],
+    del:"Freelance profiles live · retrospective posted · 2027 runway set"}
+  ];
+  var BLOCKS=[
+   {id:"A",title:"Setup + SAA cert + Part I finish",meta:"W1–6 · Jul 18 – Aug 28"},
+   {id:"B",title:"Core DL + first projects + cert decision",meta:"W7–12 · Aug 29 – Oct 9"},
+   {id:"C",title:"Transformers / LLMs + anchor projects",meta:"W13–19 · Oct 10 – Nov 27"},
+   {id:"D",title:"Agentic / MLOps + consolidate + position",meta:"W20–24 · Nov 28 – Dec 30"}
+  ];
+  var PROJECTS=[
+   {id:"P0",name:"Anomaly / clustering demo",tag:"classic-ML · easy win",feeds:"Ch 7,8 · W4–6",
+    body:"Find natural segments + flag anomalies on an unlabeled real-ish dataset. PCA/UMAP → k-means/DBSCAN → GMM/IsolationForest → Streamlit upload app.",
+    metrics:"silhouette · precision/recall of flags on a labeled subset"},
+   {id:"P1",name:"Transfer-learning image classifier",tag:"CV · deployed",feeds:"Ch 12 · W9–10",
+    body:"Fine-grained task, few images/class. Pretrained backbone → freeze → head → differential-LR fine-tune. Gradio: image → top-3.",
+    metrics:"acc vs from-scratch · per-class · confusion matrix · 3–5 honest failures"},
+   {id:"P2",name:"Forecasting / predictive maintenance",tag:"the classic-ML hedge",feeds:"Ch 13 · W11–12",
+    body:"Predict something a manager would pay to know. Windowed features → XGBoost baseline → LSTM → honest backtest → FastAPI /predict.",
+    metrics:"MAE/RMSE vs naive baseline · a cost/impact framing"},
+   {id:"P3",name:"Domain-specific RAG API",tag:"the 2026 golden project",feeds:"Ch 14,15 · W15–17",anchor:true,
+    body:"Accurate, cited Q&A over a niche corpus. Smart chunking → vector DB → hybrid dense+BM25 → cross-encoder rerank → grounded generation → FastAPI + Docker.",
+    metrics:"RAGAS faithfulness/relevancy · hit-rate@k · p50/p95 latency · cost/query · before/after reranking"},
+   {id:"P4",name:"LLM eval & observability pipeline",tag:"your signature",feeds:"Ch 15 · App B · W18–20",anchor:true,
+    body:"The layer that catches quality drops before users do. Golden dataset → RAGAS+DeepEval + LLM-judge → tracing → an “LLM CI” Action that fails the build below thresholds.",
+    metrics:"catches an injected regression · % hallucinations caught · eval-run latency"},
+   {id:"P5",name:"Agentic workflow OR MLOps service",tag:"rounds out the story",feeds:"Ch 17 · App B · W21",
+    body:"(a) LangGraph tool-using agent with self-correction + guardrails, or (b) a model behind Docker+CI+drift monitoring+alerting. Recommendation: (a) for the wow.",
+    metrics:"task success · tool-call accuracy · cost/task · guardrail catches"}
+  ];
+  var REPROS=[
+   {id:"makemore",name:"makemore",tag:"~8–15 h · W7–8",body:"Char-level LM from scratch. On-ramp to autograd/backprop/embeddings. Optional if time-pressed — nanoGPT subsumes it."},
+   {id:"nanogpt",name:"nanoGPT / build-nanogpt",tag:"⭐ ~15–30 h · W13–15",body:"Reproduce a GPT-2-class model in a few hundred lines. Highest-signal reproduction."},
+   {id:"lora",name:"LoRA / QLoRA fine-tune",tag:"⭐ ~10–20 h · W18",body:"From-scratch adapter → the PEFT production path; QLoRA runs on a free Colab T4. Most directly hireable."}
+  ];
+  var POSTS=[
+   {n:1,w:"W1",t:"6 months to become a production LLM engineer — my plan, in public"},
+   {n:2,w:"W3",t:"PCA explained by actually compressing an image"},
+   {n:3,w:"W6",t:"Passed AWS SAA-C03 — my 4-week revision loop"},
+   {n:4,w:"W8",t:"I built a neural language model from scratch (makemore)"},
+   {n:5,w:"W10",t:"P1 case study — transfer learning + where it breaks"},
+   {n:6,w:"W12",t:"Classic ML still pays: forecasting — XGBoost vs LSTM"},
+   {n:7,w:"W15",t:"I reproduced GPT-2 from scratch — the 4 ideas behind a Transformer"},
+   {n:8,w:"W17",t:"P3 RAG API — with the eval numbers most demos hide"},
+   {n:9,w:"W19",t:"⭐ The part of LLM apps everyone skips: how I test & evaluate them"},
+   {n:10,w:"W21",t:"P5 — agent guardrails / model-decay monitoring"},
+   {n:11,w:"W22",t:"(stretch) diffusion samples"},
+   {n:12,w:"W24",t:"6 months building in public — and I'm open for freelance"}
+  ];
+  var CPS=[
+   {n:1,when:"End of Block A · ~W6",title:"Does the machine run?",q:"Pure execution test — no market signal expected yet.",big:false},
+   {n:2,when:"End of Block B · ~W12",title:"Can I ship, and is anyone noticing?",q:"Execution proven + first weak pulse. Cert decision must be locked.",big:false},
+   {n:3,when:"End of Block C · ~W19",title:"Do the anchors exist? — THE BIG ONE",q:"P3 + P4 are the proof you can build & prove production LLM systems.",big:true},
+   {n:4,when:"End of Block D · ~W24",title:"Am I positioned to sell?",q:"Positioning + first real read. Paid work by Dec 30 is a bonus, not the bar.",big:false},
+   {n:5,when:"~Q2 2027",title:"Does the market pay? — the real thesis test",q:"Only here do you judge the strategy — after a genuine 8–12 wk outreach push.",big:false}
+  ];
+
+  // ---------- helpers ----------
+  function el(tag,cls,html){var e=document.createElement(tag); if(cls)e.className=cls; if(html!=null)e.innerHTML=html; return e;}
+  function reqKeys(w){var ks=[]; w.core.forEach(function(_,i){ks.push("wk."+w.id+".c."+i);}); ks.push("wk."+w.id+".d"); return ks;}
+  function weekDone(w){var ks=reqKeys(w),d=0; ks.forEach(function(k){if(getB(k))d++;}); return {done:d,total:ks.length};}
+
+  // current week from today
+  function currentIndex(){
+    var now=new Date(); var idx=0;
+    for(var i=0;i<WEEKS.length;i++){ if(new Date(WEEKS[i].start+"T00:00:00")<=now) idx=WEEKS[i].id; }
+    return idx; // 0 => before start
+  }
+  var CUR=currentIndex();
+  var CURW=CUR===0?1:CUR;
+
+  // ---------- render: run cells ----------
+  var cellsEl=document.getElementById("cells");
+  var blkOrder=["A","B","C","D"];
+  blkOrder.forEach(function(b){
+    var wrap=el("div","blk");
+    WEEKS.filter(function(w){return w.blk===b;}).forEach(function(w){
+      var c=el("button","cell"); c.type="button";
+      c.setAttribute("data-week",w.id);
+      c.title="W"+(w.id<10?"0":"")+w.id+" — "+w.title;
+      c.setAttribute("aria-label",c.title);
+      wrap.appendChild(c);
+    });
+    cellsEl.appendChild(wrap);
+  });
+  cellsEl.addEventListener("click",function(e){
+    var c=e.target.closest(".cell"); if(!c)return;
+    var id=+c.getAttribute("data-week");
+    var wk=document.getElementById("week-"+id);
+    if(wk){ openWeek(wk,true); wk.scrollIntoView({behavior:"smooth",block:"center"}); }
+  });
+
+  // ---------- render: this week ----------
+  function itemRow(w,type,idx,item,checkedKey){
+    var key=checkedKey;
+    var li=el("li","item"); if(getB(key))li.classList.add("done");
+    var cb=el("input"); cb.type="checkbox"; cb.className="chk"; cb.setAttribute("data-k",key); cb.checked=getB(key);
+    cb.id="cb-"+key.replace(/\./g,"-");
+    var tag=el("span","tag "+item.t, TYPE[item.t]||"DO");
+    var lab=el("label"); lab.setAttribute("for",cb.id); lab.innerHTML=item.x;
+    li.appendChild(cb); li.appendChild(tag); li.appendChild(lab);
+    return li;
+  }
+  function delRow(w){
+    var key="wk."+w.id+".d";
+    var li=el("li","item"); if(getB(key))li.classList.add("done");
+    var cb=el("input"); cb.type="checkbox"; cb.className="chk"; cb.setAttribute("data-k",key); cb.checked=getB(key);
+    cb.id="cb-"+key.replace(/\./g,"-");
+    var tag=el("span","tag proj","DELIV");
+    var lab=el("label"); lab.setAttribute("for",cb.id); lab.innerHTML="<span class='del'>Deliverable:</span> "+w.del;
+    li.appendChild(cb); li.appendChild(tag); li.appendChild(lab);
+    return li;
+  }
+  function buildWeekBody(w){
+    var frag=document.createDocumentFragment();
+    frag.appendChild(el("div","grp-lab","Core — must do"));
+    var ulc=el("ul","items");
+    w.core.forEach(function(item,i){ ulc.appendChild(itemRow(w,"c",i,item,"wk."+w.id+".c."+i)); });
+    frag.appendChild(ulc);
+    if(w.stretch&&w.stretch.length){
+      frag.appendChild(el("div","grp-lab","Stretch — if ahead"));
+      var uls=el("ul","items");
+      w.stretch.forEach(function(txt,i){
+        var key="wk."+w.id+".s."+i;
+        var li=el("li","item"); if(getB(key))li.classList.add("done");
+        var cb=el("input"); cb.type="checkbox"; cb.className="chk"; cb.setAttribute("data-k",key); cb.checked=getB(key); cb.id="cb-"+key.replace(/\./g,"-");
+        var tag=el("span","tag","+");
+        var lab=el("label"); lab.setAttribute("for",cb.id); lab.innerHTML=txt;
+        li.appendChild(cb); li.appendChild(tag); li.appendChild(lab); uls.appendChild(li);
+      });
+      frag.appendChild(uls);
+    }
+    var uld=el("ul","items"); uld.style.marginTop="10px"; uld.appendChild(delRow(w)); frag.appendChild(uld);
+    if(w.note){ frag.appendChild(el("div","note","⚠ "+w.note)); }
+    return frag;
+  }
+
+  var tw=WEEKS[CURW-1];
+  var twWrap=document.getElementById("thisweek");
+  (function(){
+    var card=el("div","card now-card");
+    var top=el("div","nc-top");
+    top.appendChild(el("span","nc-code","W"+(tw.id<10?"0":"")+tw.id));
+    top.appendChild(el("span","nc-title",tw.title));
+    top.appendChild(el("span","nc-dates mono",tw.dates));
+    top.appendChild(el("span","nc-badge", CUR===0?"STARTS SOON":"BLOCK "+tw.blk));
+    card.appendChild(top);
+    var body=el("div","pad");
+    body.appendChild(buildWeekBody(tw));
+    card.appendChild(body);
+    twWrap.appendChild(card);
+  })();
+
+  // today string
+  (function(){
+    var now=new Date();
+    var m=["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+    document.getElementById("today-str").textContent=m[now.getMonth()]+" "+now.getDate()+", "+now.getFullYear();
+  })();
+
+  // ---------- render: timeline blocks ----------
+  var blocksEl=document.getElementById("blocks");
+  BLOCKS.forEach(function(b){
+    var block=el("div","block"); block.id="block-"+b.id;
+    var head=el("div","block-head");
+    head.appendChild(el("span","block-tag",b.id));
+    var meta=el("div"); meta.appendChild(el("div","bh-title",b.title)); meta.appendChild(el("div","bh-meta",b.meta));
+    head.appendChild(meta);
+    var prog=el("div","block-prog");
+    var bar=el("div","bar"); var fill=el("i"); fill.id="bfill-"+b.id; bar.appendChild(fill);
+    prog.appendChild(bar); var bp=el("span","bp"); bp.id="bpct-"+b.id; bp.textContent="0%"; prog.appendChild(bp);
+    head.appendChild(prog);
+    block.appendChild(head);
+
+    WEEKS.filter(function(w){return w.blk===b.id;}).forEach(function(w){
+      var wk=el("div","week"); wk.id="week-"+w.id;
+      if(w.id===CURW) wk.classList.add("is-now");
+      var hb=el("button","wk-head"); hb.type="button"; hb.setAttribute("aria-expanded","false");
+      hb.appendChild(el("span","wk-code","W"+(w.id<10?"0":"")+w.id));
+      hb.appendChild(el("span","wk-title",w.title));
+      if(w.id===CURW) hb.appendChild(el("span","nowpill","NOW"));
+      hb.appendChild(el("span","wk-dates mono",w.dates));
+      var mini=el("span","wk-mini"); var mbar=el("div","bar"); var mfill=el("i"); mfill.id="wfill-"+w.id; mbar.appendChild(mfill); mini.appendChild(mbar);
+      hb.appendChild(mini);
+      hb.appendChild(el("span","wk-chev","›"));
+      wk.appendChild(hb);
+      var bodyWrap=el("div","wk-body");
+      bodyWrap.appendChild(buildWeekBody(w));
+      wk.appendChild(bodyWrap);
+      hb.addEventListener("click",function(){ toggleWeek(wk); });
+      block.appendChild(wk);
+    });
+    blocksEl.appendChild(block);
+  });
+  function toggleWeek(wk){ var open=wk.classList.toggle("open"); wk.querySelector(".wk-head").setAttribute("aria-expanded",open?"true":"false"); }
+  function openWeek(wk,force){ if(force){ wk.classList.add("open"); wk.querySelector(".wk-head").setAttribute("aria-expanded","true"); } }
+  // open current week by default in timeline
+  (function(){ var wk=document.getElementById("week-"+CURW); if(wk) openWeek(wk,true); })();
+
+  // ---------- render: projects ----------
+  function projCard(p,isRepro){
+    var card=el("div","card proj"+(p.anchor?" anchor":""));
+    var head=el("div","p-head");
+    head.appendChild(el("span","p-id",p.id?p.id:p.name.split(" ")[0]));
+    var nm=el("div"); nm.appendChild(el("div","p-name",p.name)); nm.appendChild(el("div","p-tag",p.tag)); head.appendChild(nm);
+    if(p.anchor) head.appendChild(el("span","anchor-flag","ANCHOR"));
+    card.appendChild(head);
+    var body=el("div","p-body");
+    if(!isRepro) body.appendChild(el("div",null,"<span style='font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-3);font-weight:600'>"+p.feeds+"</span>"));
+    body.appendChild(el("p",null,p.body));
+    if(p.metrics) body.appendChild(el("div","metrics","<b>Metrics:</b> "+p.metrics));
+    card.appendChild(body);
+    var key=(isRepro?"repro.":"proj.")+p.id;
+    var row=el("div","deploy-row"); if(getB(key))row.classList.add("on");
+    var cb=el("input"); cb.type="checkbox"; cb.className="chk"; cb.setAttribute("data-k",key); cb.checked=getB(key); cb.id="cb-"+key.replace(/\./g,"-"); cb.style.width="18px"; cb.style.height="18px";
+    var lab=el("label"); lab.setAttribute("for",cb.id); lab.textContent=isRepro?"Reproduction packaged & written up":"Deployed with live URL + numbers";
+    row.appendChild(cb); row.appendChild(lab);
+    card.appendChild(row);
+    return card;
+  }
+  var pg=document.getElementById("projects-grid");
+  PROJECTS.forEach(function(p){ pg.appendChild(projCard(p,false)); });
+  var rg=document.getElementById("repros-grid");
+  REPROS.forEach(function(p){ rg.appendChild(projCard(p,true)); });
+
+  // ---------- render: checkpoints ----------
+  var cpEl=document.getElementById("cp-list");
+  CPS.forEach(function(c){
+    var d=el("div","cp"+(c.big?" big":""));
+    d.appendChild(el("div","cp-when","CHECKPOINT "+c.n+" · "+c.when));
+    d.appendChild(el("h4",null,c.title));
+    d.appendChild(el("div","cp-q","“"+c.q+"”"));
+    var g=el("div","cp-grades");
+    g.appendChild(el("span","pill g","🟢 continue"));
+    g.appendChild(el("span","pill y","🟡 tighten / fix"));
+    g.appendChild(el("span","pill r","🔴 re-cut, don't quit"));
+    d.appendChild(g);
+    cpEl.appendChild(d);
+  });
+
+  // ---------- render: posts ----------
+  var postsEl=document.getElementById("posts-list");
+  POSTS.forEach(function(p){
+    var key="post."+p.n;
+    var li=el("li","item"); if(getB(key))li.classList.add("done");
+    var cb=el("input"); cb.type="checkbox"; cb.className="chk"; cb.setAttribute("data-k",key); cb.checked=getB(key); cb.id="cb-"+key.replace(/\./g,"-");
+    var tag=el("span","tag","#"+p.n);
+    var lab=el("label"); lab.setAttribute("for",cb.id); lab.innerHTML="<span class='mono' style='color:var(--ink-3);font-size:11px'>"+p.w+"</span> &nbsp;"+p.t;
+    li.appendChild(cb); li.appendChild(tag); li.appendChild(lab);
+    postsEl.appendChild(li);
+  });
+
+  // ---------- parking lot ----------
+  var park=document.getElementById("parking");
+  park.value=get("parking.text")||"";
+  park.addEventListener("input",function(){ set("parking.text",park.value); scheduleSave(); });
+
+  // ---------- progress engine ----------
+  function updateProgress(){
+    var totAll=0,doneAll=0;
+    var byBlk={A:{d:0,t:0},B:{d:0,t:0},C:{d:0,t:0},D:{d:0,t:0}};
+    WEEKS.forEach(function(w){
+      var r=weekDone(w); totAll+=r.total; doneAll+=r.done;
+      byBlk[w.blk].t+=r.total; byBlk[w.blk].d+=r.done;
+      // week mini
+      var mf=document.getElementById("wfill-"+w.id); if(mf) mf.style.width=(r.total?Math.round(r.done/r.total*100):0)+"%";
+      // cell state
+      var cell=cellsEl.querySelector('.cell[data-week="'+w.id+'"]');
+      if(cell){
+        cell.classList.remove("done","part","now");
+        if(r.total&&r.done===r.total) cell.classList.add("done");
+        else if(r.done>0){ cell.classList.add("part"); cell.style.setProperty("--f",Math.round(r.done/r.total*100)+"%"); }
+        if(w.id===CURW) cell.classList.add("now");
+      }
+    });
+    var pct=totAll?Math.round(doneAll/totAll*100):0;
+    document.getElementById("run-pct").textContent=pct+"%";
+    document.getElementById("kpi-timeline").innerHTML=pct+"<small>%</small>";
+    blkOrder.forEach(function(b){
+      var o=byBlk[b], p=o.t?Math.round(o.d/o.t*100):0;
+      var f=document.getElementById("bfill-"+b); if(f)f.style.width=p+"%";
+      var bp=document.getElementById("bpct-"+b); if(bp)bp.textContent=p+"%";
+    });
+    // KPIs proj/posts
+    var pd=0; PROJECTS.forEach(function(p){ if(getB("proj."+p.id))pd++; });
+    document.getElementById("kpi-proj").innerHTML=pd+"<small> / 6</small>";
+    var pp=0; POSTS.forEach(function(p){ if(getB("post."+p.n))pp++; });
+    document.getElementById("kpi-posts").innerHTML=pp+"<small> / 12</small>";
+    // now
+    var w=WEEKS[CURW-1];
+    document.getElementById("run-now").innerHTML=(CUR===0?"Starts "+w.dates:"<b>Week "+w.id+"</b> / 24 · Block "+w.blk);
+    document.getElementById("kpi-now").textContent="W"+w.id+" / 24";
+    document.getElementById("kpi-now-sub").textContent="Block "+w.blk+" · "+w.dates;
+  }
+
+  // ---------- delegated change handling ----------
+  document.addEventListener("change",function(e){
+    var cb=e.target;
+    if(cb&&cb.classList&&cb.classList.contains("chk")){
+      var k=cb.getAttribute("data-k");
+      if(cb.checked) set(k,"1"); else del(k);
+      // toggle done styling on nearest .item / .deploy-row
+      var item=cb.closest(".item"); if(item) item.classList.toggle("done",cb.checked);
+      var dr=cb.closest(".deploy-row"); if(dr) dr.classList.toggle("on",cb.checked);
+      // sync duplicate checkboxes with same key (this-week vs timeline)
+      var dupes=document.querySelectorAll('.chk[data-k="'+k.replace(/"/g,'')+'"]');
+      dupes.forEach(function(d){ if(d!==cb){ d.checked=cb.checked; var di=d.closest(".item"); if(di)di.classList.toggle("done",cb.checked); var dd=d.closest(".deploy-row"); if(dd)dd.classList.toggle("on",cb.checked);} });
+      updateProgress();
+      scheduleSave();
+    }
+  });
+
+  // reset
+  document.getElementById("reset").addEventListener("click",function(e){
+    e.preventDefault();
+    if(!confirm("Reset all progress and the parking lot in this browser? The plan itself is untouched.")) return;
+    Object.keys(store).forEach(function(k){ try{localStorage.removeItem(LS+k);}catch(e){} });
+    store={};
+    document.querySelectorAll(".chk").forEach(function(c){ c.checked=false; var i=c.closest(".item"); if(i)i.classList.remove("done"); var d=c.closest(".deploy-row"); if(d)d.classList.remove("on"); });
+    park.value="";
+    updateProgress();
+    if(connected) scheduleSave();
+  });
+
+  // ---------- save & sync to a file ----------
+  var handle=null, saveTimer=null, connected=false;
+  var hasFS = ('showSaveFilePicker' in window) && ('showOpenFilePicker' in window);
+  function payload(){ return JSON.stringify({_:"ml-plan-progress",v:1,savedAt:new Date().toISOString(),data:store},null,2); }
+  function syncDom(){
+    document.querySelectorAll(".chk").forEach(function(c){
+      var k=c.getAttribute("data-k"); c.checked=getB(k);
+      var i=c.closest(".item"); if(i)i.classList.toggle("done",c.checked);
+      var d=c.closest(".deploy-row"); if(d)d.classList.toggle("on",c.checked);
+    });
+    if(park) park.value=get("parking.text")||"";
+    updateProgress();
+  }
+  function applyState(obj){
+    var data=obj&&obj.data?obj.data:obj;
+    if(!data||typeof data!=="object") throw new Error("bad file");
+    Object.keys(store).slice().forEach(function(k){ del(k); });
+    Object.keys(data).forEach(function(k){ set(k,String(data[k])); });
+    syncDom();
+  }
+  function setStatus(msg){
+    var s=document.getElementById("sync-status"), rc=document.getElementById("sync-reconnect");
+    if(!s) return;
+    if(connected&&handle){ s.innerHTML="<span class='dot on'></span> Auto-saving to <b>"+(handle.name||"progress.json")+"</b>"; if(rc)rc.hidden=true; }
+    else if(msg==="downloaded"){ s.innerHTML="<span class='dot'></span> Saved <b>progress.json</b> to your Downloads — move it next to dashboard.html, then commit it"; }
+    else if(msg==="loaded"){ s.innerHTML="<span class='dot on'></span> Loaded into this browser"; }
+    else if(msg==="error"){ s.innerHTML="<span class='dot err'></span> File error — using this browser only for now"; }
+    else{ s.innerHTML="<span class='dot'></span> Saving in this browser only — click <b>Save to file</b> to keep a progress.json"; }
+  }
+  async function writeHandle(){
+    if(!handle)return;
+    try{ var w=await handle.createWritable(); await w.write(payload()); await w.close(); setStatus(); }
+    catch(e){ connected=false; setStatus("error"); }
+  }
+  function scheduleSave(){ if(!connected||!handle)return; clearTimeout(saveTimer); saveTimer=setTimeout(writeHandle,500); }
+  function idb(cb){ try{ var r=indexedDB.open("mlplan-fs",1); r.onupgradeneeded=function(){ r.result.createObjectStore("h"); }; r.onsuccess=function(){ cb(r.result); }; r.onerror=function(){ cb(null); }; }catch(e){ cb(null); } }
+  function saveHandle(h){ idb(function(db){ if(!db)return; try{ db.transaction("h","readwrite").objectStore("h").put(h,"progress"); }catch(e){} }); }
+  function loadHandleRef(cb){ idb(function(db){ if(!db){cb(null);return;} try{ var g=db.transaction("h","readonly").objectStore("h").get("progress"); g.onsuccess=function(){cb(g.result||null);}; g.onerror=function(){cb(null);}; }catch(e){cb(null);} }); }
+  function downloadFallback(){
+    var blob=new Blob([payload()],{type:"application/json"}), url=URL.createObjectURL(blob), a=document.createElement("a");
+    a.href=url; a.download="progress.json"; document.body.appendChild(a); a.click();
+    setTimeout(function(){ URL.revokeObjectURL(url); a.remove(); },120); setStatus("downloaded");
+  }
+  function fileInputFallback(){
+    var inp=document.createElement("input"); inp.type="file"; inp.accept="application/json,.json";
+    inp.onchange=function(){ var f=inp.files&&inp.files[0]; if(!f)return; var rd=new FileReader();
+      rd.onload=function(){ try{ applyState(JSON.parse(rd.result)); connected=false; setStatus("loaded"); }catch(e){ alert("That isn't a valid progress.json."); } };
+      rd.readAsText(f); };
+    inp.click();
+  }
+  async function doSave(){
+    if(hasFS){ try{
+      handle=await window.showSaveFilePicker({suggestedName:"progress.json",types:[{description:"Progress JSON",accept:{"application/json":[".json"]}}]});
+      connected=true; saveHandle(handle); await writeHandle(); setStatus();
+    }catch(e){ if(e&&e.name==="AbortError")return; downloadFallback(); } }
+    else downloadFallback();
+  }
+  async function doLoad(){
+    if(hasFS){ try{
+      var picked=await window.showOpenFilePicker({types:[{description:"Progress JSON",accept:{"application/json":[".json"]}}]});
+      handle=picked[0]; var f=await handle.getFile(); applyState(JSON.parse(await f.text()));
+      connected=true; saveHandle(handle); setStatus();
+    }catch(e){ if(e&&e.name==="AbortError")return; fileInputFallback(); } }
+    else fileInputFallback();
+  }
+  async function reconnect(){
+    if(!handle)return;
+    try{ var perm=await handle.requestPermission({mode:"readwrite"}); if(perm!=="granted"){ setStatus(); return; }
+      var f=await handle.getFile(); var txt=await f.text(); if(txt&&txt.trim()) applyState(JSON.parse(txt));
+      connected=true; setStatus();
+    }catch(e){ setStatus("error"); }
+  }
+  (function initSync(){
+    var sv=document.getElementById("sync-save"), ld=document.getElementById("sync-load"), rc=document.getElementById("sync-reconnect");
+    if(sv) sv.addEventListener("click",doSave);
+    if(ld) ld.addEventListener("click",doLoad);
+    if(rc) rc.addEventListener("click",reconnect);
+    if(hasFS){ loadHandleRef(function(h){ if(h){ handle=h; if(rc) rc.hidden=false; } setStatus(); }); }
+    else setStatus();
+  })();
+
+  updateProgress();
+})();
+</script>

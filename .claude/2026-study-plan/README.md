@@ -104,6 +104,7 @@ Full week-by-week detail: **[`calendar.md`](./calendar.md)**.
 | [`brand.md`](./brand.md) | LinkedIn/reputation playbook: content engine, cadence, profile-as-landing-page, GSoC/SDET positioning. |
 | [`resources.md`](./resources.md) | Curated resource stack (with when-to-use) + ranked reproduction targets. |
 | [`research-brief.md`](./research-brief.md) | The full cited market research this plan is built on (with verification caveats). |
+| [`dashboard/`](./dashboard/) | **Interactive control panel** — open `dashboard/dashboard.html` in a browser for a navigable, checkable view of this plan (auto-selects the current week; progress saves to `progress.json`). Regenerated from these files. |
 
 ---
 
