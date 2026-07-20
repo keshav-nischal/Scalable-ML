@@ -549,7 +549,7 @@
         <button type="button" class="btn" id="sync-load">Load from file</button>
         <button type="button" class="btn" id="sync-reconnect" hidden>Reconnect progress.json</button>
       </div>
-      <p class="sync-hint">Progress always saves instantly in this browser. To keep it as a real file: in Chrome/Edge click <b>Save to file</b> once and pick <span class="mono">progress.json</span> in this folder — after that it auto-saves to that file on every change, and you can commit it to the repo. Other browsers download / re-import the file instead of live-syncing.</p>
+      <p class="sync-hint">Progress always saves instantly in this browser. To keep it as a real file: in Chrome/Edge click <b>Save to file</b> once and pick <span class="mono">progress.json</span> in this folder — after that it auto-saves to that file on every change <b>and re-attaches itself automatically</b> next time you open the dashboard (no clicks). Served over <span class="mono">http://localhost</span>, a committed <span class="mono">progress.json</span> in this folder is also auto-detected and loaded. Other browsers download / re-import the file instead of live-syncing.</p>
     </div>
   </section>
 
@@ -1030,9 +1030,21 @@
   });
 
   // ---------- save & sync to a file ----------
-  var handle=null, saveTimer=null, connected=false;
+  var handle=null, saveTimer=null, connected=false, lastTs="";
+  var LSMETA="mlplan.meta.savedAt";
   var hasFS = ('showSaveFilePicker' in window) && ('showOpenFilePicker' in window);
-  function payload(){ return JSON.stringify({_:"ml-plan-progress",v:1,savedAt:new Date().toISOString(),data:store},null,2); }
+  var isHttp = /^https?:$/.test(location.protocol);
+  function localSavedAt(){ try{ return localStorage.getItem(LSMETA)||""; }catch(e){ return ""; } }
+  function markSaved(ts){ lastTs=ts||lastTs; try{ localStorage.setItem(LSMETA, lastTs); }catch(e){} }
+  // decide whether an incoming file should overwrite what's in this browser
+  function fileIsNewer(obj){
+    var f=obj&&obj.savedAt?obj.savedAt:"";
+    if(Object.keys(store).length===0) return true;   // fresh browser → take the file
+    if(!f) return false;
+    var l=localSavedAt(); if(!l) return true;
+    return f>l;                                       // ISO timestamps sort lexically
+  }
+  function payload(){ lastTs=new Date().toISOString(); return JSON.stringify({_:"ml-plan-progress",v:1,savedAt:lastTs,data:store},null,2); }
   function syncDom(){
     document.querySelectorAll(".chk").forEach(function(c){
       var k=c.getAttribute("data-k"); c.checked=getB(k);
@@ -1047,12 +1059,14 @@
     if(!data||typeof data!=="object") throw new Error("bad file");
     Object.keys(store).slice().forEach(function(k){ del(k); });
     Object.keys(data).forEach(function(k){ set(k,String(data[k])); });
+    if(obj&&obj.savedAt) markSaved(obj.savedAt);
     syncDom();
   }
   function setStatus(msg){
     var s=document.getElementById("sync-status"), rc=document.getElementById("sync-reconnect");
     if(!s) return;
-    if(connected&&handle){ s.innerHTML="<span class='dot on'></span> Auto-saving to <b>"+(handle.name||"progress.json")+"</b>"; if(rc)rc.hidden=true; }
+    if(connected&&handle){ s.innerHTML="<span class='dot on'></span> Auto-saving to <b>"+(handle.name||"progress.json")+"</b> — no clicks needed"; if(rc)rc.hidden=true; }
+    else if(msg==="detected"){ s.innerHTML="<span class='dot on'></span> Detected <b>progress.json</b> in this folder (read-only). Click <b>Save to file</b> once to enable auto-save."; }
     else if(msg==="downloaded"){ s.innerHTML="<span class='dot'></span> Saved <b>progress.json</b> to your Downloads — move it next to dashboard.html, then commit it"; }
     else if(msg==="loaded"){ s.innerHTML="<span class='dot on'></span> Loaded into this browser"; }
     else if(msg==="error"){ s.innerHTML="<span class='dot err'></span> File error — using this browser only for now"; }
@@ -1060,7 +1074,7 @@
   }
   async function writeHandle(){
     if(!handle)return;
-    try{ var w=await handle.createWritable(); await w.write(payload()); await w.close(); setStatus(); }
+    try{ var body=payload(); var w=await handle.createWritable(); await w.write(body); await w.close(); markSaved(); setStatus(); }
     catch(e){ connected=false; setStatus("error"); }
   }
   function scheduleSave(){ if(!connected||!handle)return; clearTimeout(saveTimer); saveTimer=setTimeout(writeHandle,500); }
@@ -1097,17 +1111,47 @@
   async function reconnect(){
     if(!handle)return;
     try{ var perm=await handle.requestPermission({mode:"readwrite"}); if(perm!=="granted"){ setStatus(); return; }
-      var f=await handle.getFile(); var txt=await f.text(); if(txt&&txt.trim()) applyState(JSON.parse(txt));
-      connected=true; setStatus();
+      var f=await handle.getFile(); var txt=await f.text(); if(txt&&txt.trim()){ var o=JSON.parse(txt); if(fileIsNewer(o)) applyState(o); }
+      connected=true; scheduleSave(); setStatus();
     }catch(e){ setStatus("error"); }
+  }
+  // On load: silently re-attach the file if we can, otherwise auto-detect a committed progress.json in this folder.
+  async function autoRestore(){
+    // 1) Chrome/Edge: reuse the file handle from last time — silent if permission still granted
+    if(hasFS){
+      var h=await new Promise(function(res){ loadHandleRef(res); });
+      if(h){
+        handle=h;
+        var perm="prompt";
+        try{ perm=await h.queryPermission({mode:"readwrite"}); }catch(e){}
+        if(perm==="granted"){
+          try{
+            var f=await h.getFile(); var txt=await f.text();
+            connected=true;
+            if(txt&&txt.trim()){ var obj=JSON.parse(txt); if(fileIsNewer(obj)) applyState(obj); else scheduleSave(); }
+            else scheduleSave();
+            setStatus(); return;
+          }catch(e){ connected=false; }
+        } else {
+          var rc=document.getElementById("sync-reconnect"); if(rc) rc.hidden=false;
+        }
+      }
+    }
+    // 2) Served over http(s): detect the committed progress.json next to dashboard.html (read-only)
+    if(isHttp){
+      try{
+        var r=await fetch("progress.json",{cache:"no-store"});
+        if(r&&r.ok){ var o=await r.json(); if(fileIsNewer(o)) applyState(o); setStatus("detected"); return; }
+      }catch(e){}
+    }
+    setStatus();
   }
   (function initSync(){
     var sv=document.getElementById("sync-save"), ld=document.getElementById("sync-load"), rc=document.getElementById("sync-reconnect");
     if(sv) sv.addEventListener("click",doSave);
     if(ld) ld.addEventListener("click",doLoad);
     if(rc) rc.addEventListener("click",reconnect);
-    if(hasFS){ loadHandleRef(function(h){ if(h){ handle=h; if(rc) rc.hidden=false; } setStatus(); }); }
-    else setStatus();
+    autoRestore();
   })();
 
   updateProgress();
