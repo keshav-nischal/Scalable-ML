@@ -169,7 +169,7 @@ Content is **SageMaker-centric** (Data Wrangler, Feature Store, Pipelines, Model
 - Position SDET as your moat: **"the ML engineer who tests, evaluates, and hardens models for production."** Reliability/eval is exactly what freelance ML buyers fear getting wrong — and few competitors can claim it. This ties your brand to the scarce skills in §2.
 - Paper reproductions double as carousel series + lessons-learned posts + portfolio pieces — high authority per unit of effort.
 
-**Content engine:** 3 pillars (Technical depth / Learning-in-public / Freelance+industry takes) × 10 angles (Tip, Stat, Step, Lesson, Benefit, Reason, Mistake, Example, Question, Personal Story) = 30 seeds. Jot one seed per study session ([The Data Writer](https://thedatawriter.substack.com/p/use-this-prompt-to-generate-30-data)).
+**Content engine:** one sourced framework is 3 pillars (Technical depth / Learning-in-public / Freelance+industry takes) × 10 angles (Tip, Stat, Step, Lesson, Benefit, Reason, Mistake, Example, Question, Personal Story) = 30 seeds ([The Data Writer](https://thedatawriter.substack.com/p/use-this-prompt-to-generate-30-data)). **Note — the actionable playbook (`brand.md`) deliberately departs from this matrix:** a pillars-and-angles grid tends to produce mechanical, "for-recruiters" posts that sharp readers discount. `brand.md` uses an authenticity-first engine instead — keep a *moments file* (surprise / gotcha / delight / honest confusion per session) and post only what you'd genuinely say to a friend in the field.
 
 ---
 
