@@ -120,6 +120,7 @@ The pivot urge almost always shows up disguised as one of these. None of them ar
 - **"No inbound yet"** (in 2026). Expected. Audiences and reputation lag by *months*. Judged too early, every reputation play looks dead.
 - **"A post flopped."** Normal and frequent. Judge the *trend over months*, never a single post.
 - **"I saw a shinier opportunity"** — a new hot framework, someone's viral success, a fresh business idea. **This is the most dangerous trigger and exactly the thrash this plan exists to kill.** → Parking lot. Revisit only at the next checkpoint.
+- **"What if AI makes all this pointless?"** A macro fear that applies to *every* path, not just this one — so it cannot favor switching. Already answered and settled in [`why-this-survives-ai.md`](./why-this-survives-ai.md): the eval/reliability wedge *gains* value as AI improves. Re-read that file; don't reopen the question.
 - **"Someone online said [my niche] is saturated/dead."** You have adversarially-verified research (`research-brief.md`). Don't re-litigate a settled, evidenced decision on a stranger's hot take.
 - **"Others are further ahead."** Different start line, different hours. Irrelevant to whether *your* plan is working.
 

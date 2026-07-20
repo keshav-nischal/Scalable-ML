@@ -97,6 +97,7 @@ Full week-by-week detail: **[`calendar.md`](./calendar.md)**.
 |---|---|
 | [`calendar.md`](./calendar.md) | **Your daily driver.** Week-by-week: chapter, project, cert, hours, deliverable. |
 | [`checkpoints.md`](./checkpoints.md) | **The governance layer.** Pre-decided persist-vs-pivot rules at W6/W12/W19/W24 + 2027. When to keep going, when to adjust, when (rarely) to stop. |
+| [`why-this-survives-ai.md`](./why-this-survives-ai.md) | **The settled AI-risk question.** Re-read when the "what if AI makes this pointless?" doubt returns — it's answered, not open. |
 | [`chapters.md`](./chapters.md) | Per-chapter: core concepts + a trimmed 4–6 hr lab set + what to skip + which project it feeds. |
 | [`projects.md`](./projects.md) | Full specs for P0–P5: problem, stack, scope, success metrics, deployment, the post it generates. |
 | [`certs.md`](./certs.md) | AWS SAA-C03 revision plan + the September ML-cert decision framework. Verified exam facts. |
