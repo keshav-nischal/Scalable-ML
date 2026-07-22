@@ -34,6 +34,26 @@ Most posts are just one of these, written plainly, with the artifact attached (a
 
 > The test for any post: *would I say this to a friend over coffee?* If it sounds like a press release, kill it. If it sounds like "okay this is kind of cool / kind of annoying / kind of surprising," post it.
 
+**Two streams that are pure gold for you — these will produce most of your non-milestone posts:**
+
+1. **Weekend builds (Sat/Sun).** No job those days, so use a slice of it to pick up a tool you're curious about, build or break something small with it, and post the surprise. *"Spent Saturday poking at [tool] — here's the one thing I didn't expect."* Low-stakes, high-personality, shows range without trying to. This is the most Karpathy-shaped thing you can do.
+2. **Field notes from pointing AI agents at never-tested tools (from your day job).** You're *already* doing this and *already* finding things — that is the content, and almost nobody posts from this angle. *"I've been having agents manually test tools nobody's stress-tested before. Here's a failure pattern that keeps showing up."* It's hands-on, genuinely novel, and it lands squarely on your eval/reliability instinct without you ever having to name-drop "ex-SDET." **One caveat:** post the *generalizable pattern*, never employer- or client-confidential specifics — anonymize the tool, keep the insight. When in doubt, leave it out.
+
+---
+
+## Voice — steal from Karpathy (your north star)
+
+You already love how he writes; trust that instinct — it's the whole style guide. Distilled:
+
+- **Lead with genuine "huh, this is cool."** Real enthusiasm, never manufactured hype. If you're not actually interested, don't post it.
+- **Be concrete.** Show the actual thing — five lines of code, the number, the screenshot, the failing output. The specifics *are* the point.
+- **Think out loud.** Post the half-formed idea and the "I don't fully get why this works yet." Narrating your own learning is the content — it invites experts to fill the gap, rather than daring them to correct a claim.
+- **Explain hard things plainly.** If you can't say it simply you don't understand it yet — and it's fine to say exactly that.
+- **Give an idea a clean handle** when one's there (a crisp analogy, a memorable phrase, the way he coined "software 2.0" or "vibe coding") — but never force a catchphrase.
+- **One idea, short.** Cut the throat-clearing, the "excited to share," and the CTAs.
+- **Low ego, high curiosity.** Own the mistakes out loud; credit others generously.
+- **No bait.** Minimal hashtags/emojis, zero "Agree? 👇". The substance is the hook. Casual, even lowercase, is fine — it sounds like a person, not a brand.
+
 ---
 
 ## Formats & algorithm (2026)
@@ -49,6 +69,7 @@ Most posts are just one of these, written plainly, with the artifact attached (a
 ## Cadence (fits 12–15 hrs/wk)
 
 - **2–3 posts/week + daily genuine comments.** Don't force the third post — a real one beats a filler one.
+- **Weekends are your exploration window** (no job Sat/Sun): spend a slice on a tool you're curious about or on writing up an agent-testing find, then post the surprise. This is where most of your non-milestone posts will come from — the study-week milestones are the backbone, the weekend builds are the personality.
 - **One ~60-min weekly block** (part of your Sunday ritual): turn the week's captured moments into posts. If nothing that week is worth posting, post less — silence beats noise.
 - **80/20:** 80% engaging in your niche, 20% original posting.
 - **Post from the work, not on top of it:** the moments file makes this automatic. If you have to sit and *think up* a post, that's the signal you've drifted into performative mode.
